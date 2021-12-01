@@ -30,6 +30,17 @@ knitr::opts_chunk$set(
 )
 ```
 
+This content is the [Seurat PBMC tutorial](https://satijalab.org/seurat/articles/pbmc3k_tutorial.html) with an additional section to add in Monocle for pseudotime trajectory analysis.
+
+Download the [raw data](https://cf.10xgenomics.com/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz)
+
+Unzip it in the terminal with:
+
+```{bash, eval=FALSE}
+tar -xvf pbmc3k_filtered_gene_bc_matrices.tar.gz 
+```
+
+
 # Setup the Seurat Object
 
 For this tutorial, we will be analyzing the a dataset of Peripheral Blood Mononuclear Cells (PBMC) freely available from 10X Genomics. There are 2,700 single cells that were sequenced on the Illumina NextSeq 500. The raw data can be found [here](https://cf.10xgenomics.com/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz).
@@ -44,7 +55,7 @@ library(Seurat)
 library(patchwork)
 
 # Load the PBMC dataset
-pbmc.data <- Read10X(data.dir = "../data/pbmc3k/filtered_gene_bc_matrices/hg19/")
+pbmc.data <- Read10X(data.dir = "../raw/filtered_gene_bc_matrices/hg19/")
 # Initialize the Seurat object with the raw (non-normalized data).
 pbmc <- CreateSeuratObject(counts = pbmc.data, project = "pbmc3k", min.cells = 3, min.features = 200)
 pbmc
@@ -379,6 +390,68 @@ saveRDS(pbmc, file = "../data/pbmc3k_final.rds")
 ```{r save.times, include = FALSE}
 write.csv(x = t(as.data.frame(all_times)), file = "../output/timings/pbmc3k_tutorial_times.csv")
 ```
+
+# Using Monocle For Pseudotime Trajectory
+
+For this workshop, we'll use the PBMC data object with Monocle for pseudotime trajectory analysis. It's debatable whether this is a suitable dataset but will suit our needs for demonstration purposes.
+
+This content is based off the [Calculating Trajectories with Monocle 3 and Seurat](http://htmlpreview.github.io/?https://github.com/satijalab/seurat-wrappers/blob/master/docs/monocle3.html) material, combining it with the PBMC dataset from the original Seurat vignette. We recommend reading the [Monocle3 documentation](https://cole-trapnell-lab.github.io/monocle3/docs/starting/) for greater understanding of the Monocle package.
+
+Firstly, load Monocle:
+
+```{r}
+library(monocle3)
+library(SeuratWrappers)
+```
+As the PBMC data has been processed, we can proceed with converting the pbmc `Seurat object` to a `cell_data_set` object, which is a class from the `Monocle` package. The `as.cell_data_set` function is used from the `SeuratWrappers` library and is used to convert the Seurat object into a `cell_data_set` object.
+
+While we have performed the general analysis steps of quality control, scaling and normalization, dimensionality reduction and clustering with Seurat, Monocle is also capable of performing these steps with its own functions. It is often a matter of preference which package to use, depending on what downstream tasks the analyst would like to perform.
+
+![](https://cole-trapnell-lab.github.io/monocle3/images/monocle3_new_workflow.png)
+It's beyond the scope of this material to delve into the properties of the `cell_data_set` object. Just be aware that this is a different way to represent the count assay data and dimensionality reduction. The functions from the `Monocle` package expects the scRNA data to be this class and therefore, the Seurat object needs to be converted to this.
+
+```{r}
+cds <- as.cell_data_set(pbmc)
+
+# Inspect the cds object and compare it to the seurat pbmc object
+cds
+```
+While we have previously clustered the pbmc dataset using Seurat, Monocle will also calculate 'partitions' - these are superclusters of the Louvain/Leiden communties that are found using a kNN pruning method. The warning message during the conversion notes that Seurat doesn't calculate partitions and clusters need to be re-calculated using Monocle.
+
+```{r}
+cds <- cluster_cells(cds)
+p1 <- plot_cells(cds, show_trajectory_graph = FALSE)
+p2 <- plot_cells(cds, color_cells_by = "partition", show_trajectory_graph = FALSE)
+wrap_plots(p1, p2)
+```
+
+We can see that in the first plot, Monocle has identified 3 clusters but all the clusters fall within the same partition. Ideally, partitions should correspond to clusters of cells within the same path of differentiation. 
+
+![](https://ars.els-cdn.com/content/image/1-s2.0-S0263931913000495-gr1.jpg)
+
+We can see from this figure of haematopoiesis that our PBMC sample contains a mix of cells from different cell types and are unlikely to be suitable for calculating a psueodotime trajectory. Nonetheless, we'll demonstrate the steps involved.
+
+Next, we need to run `learn_graph`. This function aims to learn how cells transition through a biological program of gene expression changes in an experiment.
+
+```{r}
+cds <- learn_graph(cds)
+plot_cells(cds, label_groups_by_cluster = FALSE, label_leaves = FALSE, label_branch_points = FALSE)
+```
+As expected from the partition plot, Monocle thinks the 
+
+We might choose to remove the B-cells and monocytes 
+
+```{r}
+selected_ids <- c("Naive CD4 T", "Memory CD4 T", "CD8 T")
+tcells_pbmc <- subset(pbmc, idents =selected_ids )
+cds <- as.cell_data_set(tcells_pbmc)
+cds <- cluster_cells(cds)
+cds <- learn_graph(cds)
+plot_cells(cds, label_groups_by_cluster = FALSE, label_leaves = FALSE, label_branch_points = FALSE)
+```
+
+
+
 
 <details>
   <summary>**Session Info**</summary>
