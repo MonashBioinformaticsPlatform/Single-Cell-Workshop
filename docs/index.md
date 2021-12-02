@@ -33,3 +33,9 @@ Install latest versions of:
 * Monocle
 
 *Venue:* Virtual workshop conducted via Zoom with breakout rooms. Zoom links will be provided after registration is complete.
+
+[PBMC Workshop material](pbmc3k_tutorial.html/)
+
+### Suggested Further Reading Material
+
+* [Orchestrating Single Cell Analysis with Bioconductor](https://bioconductor.org/books/release/OSCA/) - this book teaches single cell analysis with the bioconductor ecosystem of packages rather than Seurat. It provides an excellent grounding and further depth and rationale behind each step of a single cell analysis.
