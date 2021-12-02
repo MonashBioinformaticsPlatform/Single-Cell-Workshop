@@ -55,7 +55,7 @@ library(Seurat)
 library(patchwork)
 
 # Load the PBMC dataset
-pbmc.data <- Read10X(data.dir = "../raw/filtered_gene_bc_matrices/hg19/")
+pbmc.data <- Read10X(data.dir = "../data/pbmc3k/filtered_gene_bc_matrices/hg19/")
 # Initialize the Seurat object with the raw (non-normalized data).
 pbmc <- CreateSeuratObject(counts = pbmc.data, project = "pbmc3k", min.cells = 3, min.features = 200)
 pbmc
@@ -395,7 +395,7 @@ write.csv(x = t(as.data.frame(all_times)), file = "../output/timings/pbmc3k_tuto
 
 For this workshop, we'll use the PBMC data object with Monocle for pseudotime trajectory analysis. It's debatable whether this is a suitable dataset but will suit our needs for demonstration purposes.
 
-This content is based off the [Calculating Trajectories with Monocle 3 and Seurat](http://htmlpreview.github.io/?https://github.com/satijalab/seurat-wrappers/blob/master/docs/monocle3.html) material, combining it with the PBMC dataset from the original Seurat vignette. We recommend reading the [Monocle3 documentation](https://cole-trapnell-lab.github.io/monocle3/docs/starting/) for greater understanding of the Monocle package.
+This content is based off the [Calculating Trajectories with Monocle 3 and Seurat](http://htmlpreview.github.io/?https://github.com/satijalab/seurat-wrappers/blob/master/docs/monocle3.html) material as well the [Monocle3 documentation](https://cole-trapnell-lab.github.io/monocle3/docs/starting/), combining it with the PBMC dataset from the original Seurat vignette. We recommend reading the [Monocle3 documentation](https://cole-trapnell-lab.github.io/monocle3/docs/starting/) for greater understanding of the Monocle package.
 
 Firstly, load Monocle:
 
@@ -408,7 +408,7 @@ As the PBMC data has been processed, we can proceed with converting the pbmc `Se
 While we have performed the general analysis steps of quality control, scaling and normalization, dimensionality reduction and clustering with Seurat, Monocle is also capable of performing these steps with its own functions. It is often a matter of preference which package to use, depending on what downstream tasks the analyst would like to perform.
 
 ![](https://cole-trapnell-lab.github.io/monocle3/images/monocle3_new_workflow.png)
-It's beyond the scope of this material to delve into the properties of the `cell_data_set` object. Just be aware that this is a different way to represent the count assay data and dimensionality reduction. The functions from the `Monocle` package expects the scRNA data to be this class and therefore, the Seurat object needs to be converted to this.
+It's beyond the scope of this material to delve into the properties of the `cell_data_set` object. Just be aware that this is a different way to represent the count assay data and dimensionality reduction. The functions from the `Monocle` package expects the scRNA data to be this class and therefore, the Seurat object needs to be converted to this class. It also means that the Seurat functions that we've been using will not work with the `cell_data_set` object. 
 
 ```{r}
 cds <- as.cell_data_set(pbmc)
@@ -416,6 +416,7 @@ cds <- as.cell_data_set(pbmc)
 # Inspect the cds object and compare it to the seurat pbmc object
 cds
 ```
+
 While we have previously clustered the pbmc dataset using Seurat, Monocle will also calculate 'partitions' - these are superclusters of the Louvain/Leiden communties that are found using a kNN pruning method. The warning message during the conversion notes that Seurat doesn't calculate partitions and clusters need to be re-calculated using Monocle.
 
 ```{r}
@@ -425,21 +426,21 @@ p2 <- plot_cells(cds, color_cells_by = "partition", show_trajectory_graph = FALS
 wrap_plots(p1, p2)
 ```
 
-We can see that in the first plot, Monocle has identified 3 clusters but all the clusters fall within the same partition. Ideally, partitions should correspond to clusters of cells within the same path of differentiation. 
+We can see that in the first plot, Monocle has identified 3 clusters but all the clusters fall within the same partition. Ideally, partitions should correspond to clusters of cells within the same path of differentiation or cell within the same trajectory. 
 
 ![](https://ars.els-cdn.com/content/image/1-s2.0-S0263931913000495-gr1.jpg)
 
-We can see from this figure of haematopoiesis that our PBMC sample contains a mix of cells from different cell types and are unlikely to be suitable for calculating a psueodotime trajectory. Nonetheless, we'll demonstrate the steps involved.
+We can see from this figure of haematopoiesis that our PBMC sample contains a mix of cells from different cell types and are unlikely to be suitable for calculating a pseudotime trajectory. Nonetheless, we'll demonstrate the steps involved.
 
-Next, we need to run `learn_graph`. This function aims to learn how cells transition through a biological program of gene expression changes in an experiment.
+Next, we need to run `learn_graph` to learn the trajectory graph. This function aims to learn how cells transition through a biological program of gene expression changes in an experiment.
 
 ```{r}
 cds <- learn_graph(cds)
 plot_cells(cds, label_groups_by_cluster = FALSE, label_leaves = FALSE, label_branch_points = FALSE)
 ```
-As expected from the partition plot, Monocle thinks the 
+As expected from the partition plot, Monocle thinks all the cells are from the same partition and therefore has plotted a trajectory line that connects all clusters. 
 
-We might choose to remove the B-cells and monocytes 
+We might choose to remove the B-cells and monocytes and focus just on the cluster of NK/CD4T/CD8T cells.
 
 ```{r}
 selected_ids <- c("Naive CD4 T", "Memory CD4 T", "CD8 T")
@@ -450,7 +451,49 @@ cds <- learn_graph(cds)
 plot_cells(cds, label_groups_by_cluster = FALSE, label_leaves = FALSE, label_branch_points = FALSE)
 ```
 
+The next step is to order cells in pseudotime:
 
+```
+Pseudotime is a measure of how much progress an individual cell has made through a process such as cell differentiation.
+
+In many biological processes, cells do not progress in perfect synchrony. In single-cell expression studies of processes such as cell differentiation, captured cells might be widely distributed in terms of progress. That is, in a population of cells captured at exactly the same time, some cells might be far along, while others might not yet even have begun the process. This asynchrony creates major problems when you want to understand the sequence of regulatory changes that occur as cells transition from one state to the next. Tracking the expression across cells captured at the same time produces a very compressed sense of a gene's kinetics, and the apparent variability of that gene's expression will be very high.
+
+By ordering each cell according to its progress along a learned trajectory, Monocle alleviates the problems that arise due to asynchrony. Instead of tracking changes in expression as a function of time, Monocle tracks changes as a function of progress along the trajectory, which we term "pseudotime". Pseudotime is an abstract unit of progress: it's simply the distance between a cell and the start of the trajectory, measured along the shortest path. The trajectory's total length is defined in terms of the total amount of transcriptional change that a cell undergoes as it moves from the starting state to the end state.
+```
+*[From Monocle's documentation](https://cole-trapnell-lab.github.io/monocle3/docs/trajectories/#order-cells)*
+
+
+Monocle needs to be told where the 'beginning' of the biological process. There are a variety of ways that this can be determined - the Monocle documentation has a custom function to find the root of the trajectory based on a subset of cells. If the `order_cells` function is used without providing which cells to use, it will launch an interface in which we can directly select cells we think are at the beginning of the trajectory.
+
+```{r}
+# a helper function to identify the root principal points:
+get_earliest_principal_node <- function(cds, time_bin="Naive CD4 T"){
+  cell_ids <- which(colData(cds)[, "ident"] == time_bin)
+  
+  closest_vertex <-
+  cds@principal_graph_aux[["UMAP"]]$pr_graph_cell_proj_closest_vertex
+  closest_vertex <- as.matrix(closest_vertex[colnames(cds), ])
+  root_pr_nodes <-
+  igraph::V(principal_graph(cds)[["UMAP"]])$name[as.numeric(names
+  (which.max(table(closest_vertex[cell_ids,]))))]
+  
+  root_pr_nodes
+}
+cds <- order_cells(cds, root_pr_nodes=get_earliest_principal_node(cds))
+```
+
+We can now plot the trajectory and color cells by pseudotime:
+
+```{r}
+plot_cells(cds, color_cells_by = "pseudotime", label_cell_groups = FALSE, label_leaves = FALSE, 
+    label_branch_points = FALSE)
+```
+
+Discuss the results of this pseudotime trajectory (remembering this is a bogus example):
+
+* NK cells and CD8T cells are furthest from the naive CD4 t-cells
+* Naive CD4 T-cells get split into two groups - cells at the root state and then cells that are intermediate in pseudotime 
+* Naive CD4 T cells shift into memeory CD4 Tcells
 
 
 <details>
