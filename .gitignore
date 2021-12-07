@@ -1,0 +1,10 @@
+vignettes/.Rhistory
+.Rproj.user
+data/filtered_gene_bc_matrices/hg19/barcodes.tsv
+data/filtered_gene_bc_matrices/hg19/genes.tsv
+data/filtered_gene_bc_matrices/hg19/matrix.mtx 
+data/filtered_gene_bc_matrices/hg19/.DS_Store
+data/.DS_Store
+data/filtered_gene_bc_matrices/.DS_Store
+.DS_Store
+vignettes/vignettes.Rproj
