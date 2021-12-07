@@ -49,13 +49,41 @@ We start by reading in the data. The `Read10X()` function reads in the output of
 
 We next use the count matrix to create a `Seurat` object. The object serves as a container that contains both data (like the count matrix) and analysis (like PCA, or clustering results) for a single-cell dataset. For a technical discussion of the `Seurat` object structure, check out our [GitHub Wiki](https://github.com/satijalab/seurat/wiki). For example, the count matrix is stored in `pbmc[["RNA"]]@counts`.
 
+<details>
+  <summary>**Discussion on the Seurat Object in R**</summary>
+
+### Class
+These are essentially data containers in R as a class, and can accessed as a variable in the
+R environment. 
+
+Classes are pre-defined and can contain multiple data tables and metadata. For
+Seurat, there are three types. 
+
+* Seurat - the main data class, contains all the data.
+* Assay - found within the Seurat object. RNA, ATAC 
+* DimReduc - for PCA and UMAP
+
+### Slots
+Slots are parts within a class that contain specific data. These can be lists, 
+data tables and vectors. 
+
+### Data Access
+Many of the functions in Seurat operate on the data class and slots within them seamlessly, 
+there maybe occasion to acess these separately to `hack` them however, this is an advanced 
+analysis method. 
+
+The ways to access the slots can be through methods for the class (functions) or with 
+standard R accessor nomenclature. 
+  
+</details>
+
 ```{r init}
 library(dplyr)
 library(Seurat)
 library(patchwork)
 
 # Load the PBMC dataset
-pbmc.data <- Read10X(data.dir = "../data/pbmc3k/filtered_gene_bc_matrices/hg19/")
+pbmc.data <- Read10X(data.dir = "../data/filtered_gene_bc_matrices/hg19/")
 # Initialize the Seurat object with the raw (non-normalized data).
 pbmc <- CreateSeuratObject(counts = pbmc.data, project = "pbmc3k", min.cells = 3, min.features = 200)
 pbmc
@@ -77,6 +105,11 @@ sparse.size <- object.size(pbmc.data)
 sparse.size
 dense.size / sparse.size
 ```
+
+**Side Bar Challenge**
+The count matrix represents all the cells in the sample (columns) and the genes (rows), why would most
+count values of genes in cells be zero?
+
 </details>
 \  
 
@@ -129,9 +162,46 @@ VlnPlot(pbmc, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3
 plot1 <- FeatureScatter(pbmc, feature1 = "nCount_RNA", feature2 = "percent.mt") 
 plot2 <- FeatureScatter(pbmc, feature1 = "nCount_RNA", feature2 = "nFeature_RNA") 
 plot1 + plot2
+```
 
+<details>
+  <summary>**Challenge Side Bar - What are the appropriate thresholds to use to remove poor QC cells?**</summary>
+ 
+Are the thresholds we set, reasonable? 
+What happens if we relax the thresholds? 
+Lets plot the percent mt with number of features.
+
+```{r}
+plot3 <- FeatureScatter(pbmc, feature1 = "nFeature_RNA", feature2 = "percent.mt") 
+plot3
+```
+
+  
+</details>
+
+Okay we are happy with our thresholds, lets apply them and subset our data. This will remove
+the cells we think are of poor quality. 
+
+```{r}
 pbmc <- subset(pbmc, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 5)
 ```
+
+
+<details>
+  <summary>**Challenge Side Bar - Feature Plots after subsetting**</summary>
+
+Lets replot the feature scatters and see what they look like. 
+
+```{r qc2_sidebar, fig.height=7, fig.width=13}
+plot5 <- FeatureScatter(pbmc, feature1 = "nCount_RNA", feature2 = "percent.mt") 
+plot6 <- FeatureScatter(pbmc, feature1 = "nCount_RNA", feature2 = "nFeature_RNA") 
+
+plot1 + plot5
+
+plot2 + plot6
+```
+
+</details>
 
 ***
 
@@ -165,6 +235,22 @@ plot1 <- VariableFeaturePlot(pbmc)
 plot2 <- LabelPoints(plot = plot1, points = top10, repel = TRUE)
 plot1 + plot2
 ```
+
+<details>
+  <summary>**Challenge Side Bar - Labelling Genes of Interest**</summary>
+What if we wanted to see more genes of interest? What can we do? Increase the number of top genes.
+
+```{r var_features2, fig.height=5, fig.width=11}
+# Identify the 10 most highly variable genes
+top20 <- head(VariableFeatures(pbmc), 20)
+
+# plot variable features with and without labels
+plot3 <- LabelPoints(plot = plot1, points = top20, repel = TRUE)
+plot2 + plot3
+```
+
+</details>
+
 
 ***
 
@@ -338,6 +424,30 @@ VlnPlot(pbmc, features = c("MS4A1", "CD79A"))
 VlnPlot(pbmc, features = c("NKG7", "PF4"), slot = 'counts', log = TRUE)
 FeaturePlot(pbmc, features = c("MS4A1", "GNLY", "CD3E", "CD14", "FCER1A", "FCGR3A", "LYZ", "PPBP", "CD8A"))
 ```
+<details>
+  <summary>**Other useful plots**</summary>
+These are ridgeplots, cell scatter plots and dotplots. Replace `FeaturePlot` with the other functions.
+
+```{r ridgeplots, fig.height=10, fig.width=15}
+RidgePlot(pbmc, features = c("MS4A1", "GNLY", "CD3E", "CD14", "FCER1A", "FCGR3A", "LYZ", "PPBP", "CD8A"))
+```
+For CellScatter plots, will need the cell id of the cells you want to look at. You could access
+this using the `[[` notation.
+```{r}
+pbmc[[]]
+CellScatter(pbmc, cell1 = "AAACATACAACCAC-1", cell2 = "AAACATTGAGCTAC-1")
+```
+
+DotPlots
+
+```{r}
+DotPlot(pbmc, features = c("MS4A1", "GNLY", "CD3E", "CD14", "FCER1A", "FCGR3A", "LYZ", "PPBP", "CD8A"))
+```
+
+Which plots do you prefer? Discuss.
+
+</details>
+
 
 `DoHeatmap()` generates an expression heatmap for given cells and features. In this case, we are plotting the top 20 markers (or all markers if less than 20) for each cluster.
 
