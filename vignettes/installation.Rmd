@@ -1,0 +1,43 @@
+---
+title: "Workshop Setup Instructions"
+author: "Adele B"
+date: "7/12/21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Package Installation
+ 
+For this workshop, several packages need to be installed. Seurat is relatively easy to install by itself. Monocle however has several dependencies that must be installed first, and these can sometimes be difficult to get all working.
+
+Should BiocManager ask to update more packages, we recommend choosing not to for your first attempt at installation. If you have a large number of packages that BiocManager wants to update, this can take several hours to update. If however your installation fails, then you might need to update the Bioc packages.
+
+```{r, eval=FALSE}
+## Install required packages for Seurat and Monocle:
+install.packages(c("Seurat", "dplyr", "devtools", "R.utils"))
+
+## Install Seuratwrapers
+remotes::install_github('satijalab/seurat-wrappers')
+
+## Install required Bioconductor dependencies for Monocle:
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+#BiocManager::install(version = "3.10")
+
+BiocManager::install(c('BiocGenerics', 'DelayedArray', 'DelayedMatrixStats',
+                       'limma', 'S4Vectors', 'SingleCellExperiment',
+                       'SummarizedExperiment', 'batchelor', 'Matrix.utils'))
+
+## Install Monocle
+devtools::install_github('cole-trapnell-lab/leidenbase')
+devtools::install_github('cole-trapnell-lab/monocle3')
+```
+
+## Data
+
+Download the [raw data at this link](https://cf.10xgenomics.com/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz)
+
+Unzip the folder in the directory that you have set as your working directory.
