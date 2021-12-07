@@ -79,6 +79,7 @@ standard R accessor nomenclature.
 
 ```{r init}
 library(dplyr)
+library(ggplot2)
 library(Seurat)
 library(patchwork)
 
@@ -98,7 +99,7 @@ pbmc.data[c("CD3D","TCL1A","MS4A1"), 1:30]
 
 The `.` values in the matrix represent 0s (no molecules detected). Since most values in an scRNA-seq matrix are 0,  Seurat uses a sparse-matrix representation whenever possible. This results in significant memory and speed savings for Drop-seq/inDrop/10x data.
 
-````{r}
+```{r}
 dense.size <- object.size(as.matrix(pbmc.data))
 dense.size
 sparse.size <- object.size(pbmc.data)
@@ -324,8 +325,12 @@ To overcome the extensive technical noise in any single feature for scRNA-seq da
 In [Macosko *et al*](http://www.cell.com/abstract/S0092-8674(15)00549-8), we implemented a resampling test inspired by the JackStraw procedure. We randomly permute a subset of the data (1% by default) and rerun PCA, constructing a 'null distribution' of feature scores, and repeat this procedure. We identify 'significant' PCs as those who have a strong enrichment of low p-value features.
 
 ```{r jackstraw, fig.height=6, fig.width=10}
-# NOTE: This process can take a long time for big datasets, comment out for expediency. More approximate techniques such as those implemented in ElbowPlot() can be used to reduce computation time
-pbmc <- JackStraw(pbmc, num.replicate = 100)
+# Note:
+# The Seurat defaults are num.replicates=100, prop.freq=0.01.
+# The parameters we're using here are just for speed, 
+#   and will give conservative p-values.
+
+pbmc <- JackStraw(pbmc, num.replicate=10, prop.freq=0.1)
 pbmc <- ScoreJackStraw(pbmc, dims = 1:20)
 ```
 
@@ -333,6 +338,14 @@ The `JackStrawPlot()` function provides a visualization tool for comparing the d
 
 ```{r jsplots, fig.height=6, fig.width=10}
 JackStrawPlot(pbmc, dims = 1:15)
+
+# Seurat plots this in a weird way. Let's adjust it a bit.
+JackStrawPlot(pbmc, dims = 1:15) + 
+  coord_cartesian() +
+  geom_abline(intercept=0, slope=0.05)
+
+# For each PC, the furthest point to the right below the solid line 
+#   gives proportion of significant genes with FDR 0.05.
 ```
 
 An alternative heuristic method generates an 'Elbow plot': a ranking of principle components based on the percentage of variance explained by each one (`ElbowPlot()` function). In this example, we can observe an 'elbow' around PC9-10, suggesting that the majority of true signal is captured in the first 10 PCs. 
