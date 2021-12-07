@@ -8,6 +8,11 @@ Monday and Tuesday, 13-14th of December
 
 Day Two: conducted by the Monash Bioinformatics Platform, will cover how to extend analysis to contemporary third-party tools, Seurat and Monocle. We will be walking through the 3K PBMC Dataset Tutorial and extend this to Monocle with some trajectory analysis.
 
+Important links:
+
+* [Installation and Setup instructions](installation.html)
+* [PBMC Workshop material](pbmc3k_tutorial.html/)
+
 ### Recommended Computer Requirements:
 
 System Requirements:
@@ -34,7 +39,7 @@ Install latest versions of:
 
 *Venue:* Virtual workshop conducted via Zoom with breakout rooms. Zoom links will be provided after registration is complete.
 
-[PBMC Workshop material](pbmc3k_tutorial.html/)
+
 
 ### Suggested Further Reading Material
 
