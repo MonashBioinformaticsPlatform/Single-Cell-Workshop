@@ -52,7 +52,7 @@ We next use the count matrix to create a `Seurat` object. The object serves as a
 <details>
   <summary>**Discussion on the Seurat Object in R**</summary>
 
-### Class
+**Class**
 
 These are essentially data containers in R as a class, and can accessed as a variable in the
 R environment. 
@@ -64,12 +64,12 @@ Seurat, there are three types.
 * Assay - found within the Seurat object. RNA, ATAC 
 * DimReduc - for PCA and UMAP
 
-### Slots
+**Slots**
 
 Slots are parts within a class that contain specific data. These can be lists, 
 data tables and vectors. 
 
-### Data Access
+**Data Access**
 
 Many of the functions in Seurat operate on the data class and slots within them seamlessly, 
 there maybe occasion to acess these separately to `hack` them however, this is an advanced 
