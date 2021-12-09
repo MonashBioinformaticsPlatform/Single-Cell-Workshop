@@ -586,16 +586,16 @@ Monocle currently thinks that all cells belong to the same partition. We might b
 
 If we examine the default parameters by `?FindClusters` and `?cluster_cells`, we might notice that Seurat's default clustering algorithm is `louvain` while Monocle's is `leiden`. We aren't going to delve into the details of these algorithms, but we will say, just be aware of the default behavior of your analysis tools and that the choice in algorithm will affect the results of the clustering.
 
-Let's try clustering with louvain:
+We can change algorithm with `cds <- cluster_cells(cds, cluster_method = "louvain")` but in this case, we might just try altering the resolution parameter with the default `leiden` algorithm to increase the number of clusters yielded 
 
 ```{r}
-cds <- cluster_cells(cds, cluster_method = "louvain")
+cds <- cluster_cells(cds, k = 5, random_seed = 5)
 p1 <- plot_cells(cds, show_trajectory_graph = FALSE)
 p2 <- plot_cells(cds, color_cells_by = "partition", show_trajectory_graph = FALSE)
 wrap_plots(p1, p2)
 ```
 
-The UMAP on the left looks over-clustered and we'd probably need to tweak more parameters to get Monocle to match the Seurat clustering. We don't necessarily need to do that because our `cds` object actually still has the meta-data about the seurat clusters stored in it (examine this with `head(colData(cds))`. However, importantly, our partition plot looks a little more sensible and no longer has lumped all cells into one supercluster. 
+The UMAP on the left looks is underclustered compared to our original clustering with Seurat. We'd probably need to tweak more parameters to get Monocle to match the Seurat clustering. We don't necessarily need to do that because our `cds` object actually still has the meta-data about the seurat clusters stored in it (examine this with `head(colData(cds))`. However, importantly, our partition plot looks a little more sensible and no longer has lumped all cells into one supercluster. 
 
 Let's re-run the `learn_graph` step:
 
