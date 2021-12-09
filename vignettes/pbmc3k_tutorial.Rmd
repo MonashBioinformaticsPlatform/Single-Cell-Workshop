@@ -546,11 +546,10 @@ While we have previously clustered the pbmc dataset using Seurat, Monocle will a
 Examine the cds object:
 
 ```{r}
+## Inspect the cds object and compare it to the Seurat pbmc object
 cds
 ```
 
-<details>
-  <summary>**Inspect the cds object and compare it to the Seurat pbmc object**</summary>
 
 Now re-cluster the cds object:
 
