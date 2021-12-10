@@ -35,6 +35,18 @@ devtools::install_github('cole-trapnell-lab/leidenbase')
 devtools::install_github('cole-trapnell-lab/monocle3')
 ```
 
+Monocle can be especially fiddly to install. We recommend checking the [Monocle installation page](https://cole-trapnell-lab.github.io/monocle3/docs/installation/) if you encounter the following issues: 
+
+* Errors involving Gdal
+* Errors involving Xcode
+* Errors involving gfortran
+* Errors involving reticulate
+
+If you encounter an error with Github API rate limit, we are in the process of outlining a solution for this.
+
+We suggest attending the MBP help session at 3pm on 10 December for installation problems or using the Slack channel to ask for help.
+
+
 ## Data
 
 Download the [raw data at this link](https://cf.10xgenomics.com/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz)
