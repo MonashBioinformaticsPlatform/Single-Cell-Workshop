@@ -85,7 +85,8 @@ library(Seurat)
 library(patchwork)
 
 # Load the PBMC dataset
-pbmc.data <- Read10X(data.dir = "../data/pbmc3k/filtered_gene_bc_matrices/hg19/") ## Please change this line to wherever you have unzipped the raw data
+data.folder <- "../../data/pbmc3k"  ## Please change this line to wherever you have unzipped the raw data
+pbmc.data <- Read10X(data.dir = file.path(data.folder, "filtered_gene_bc_matrices/hg19/"))
 
 # Initialize the Seurat object with the raw (non-normalized data).
 pbmc <- CreateSeuratObject(counts = pbmc.data, project = "pbmc3k", min.cells = 3, min.features = 200)
@@ -498,6 +499,7 @@ DimPlot(pbmc, reduction = 'umap', label = TRUE, pt.size = 0.5) + NoLegend()
 
 ```{r save.img, include=FALSE}
 library(ggplot2)
+dir.create("../output/images", recursive = TRUE)
 plot <- DimPlot(pbmc, reduction = "umap", label = TRUE, label.size = 4.5) + xlab("UMAP 1") + ylab("UMAP 2") + 
   theme(axis.title = element_text(size = 18), legend.text = element_text(size = 18)) + 
   guides(colour = guide_legend(override.aes = list(size = 10)))
@@ -509,10 +511,11 @@ saveRDS(pbmc, file = "../output/pbmc3k_final.rds")
 ```
 
 ```{r save2, include = FALSE}
-saveRDS(pbmc, file = "../data/pbmc3k_final.rds")
+saveRDS(pbmc, file = file.path(data.folder, "pbmc3k_final.rds"))
 ```
 
 ```{r save.times, include = FALSE}
+dir.create("../output/timings", recursive = TRUE)
 write.csv(x = t(as.data.frame(all_times)), file = "../output/timings/pbmc3k_tutorial_times.csv")
 ```
 
