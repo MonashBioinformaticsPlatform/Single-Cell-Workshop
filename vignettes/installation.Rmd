@@ -39,4 +39,10 @@ devtools::install_github('cole-trapnell-lab/monocle3')
 
 Download the [raw data at this link](https://cf.10xgenomics.com/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz)
 
-Unzip the folder in the directory that you have set as your working directory.
+Unzip the folder by clicking on it in the directory that you have set as your working directory.
+
+Alternatively you can unzip it in the terminal with:
+
+```{bash, eval=FALSE}
+tar -xvf pbmc3k_filtered_gene_bc_matrices.tar.gz 
+```

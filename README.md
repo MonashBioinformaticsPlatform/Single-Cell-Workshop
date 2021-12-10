@@ -19,3 +19,4 @@ Current order of play and nominated instructors (TBC)
 | 3:30 - 4:00 | Single Cell further | David | 30 min
 | 4:00 - 4:30 | Trajectory Analysis (Monocle) | Adele   | 30 min |
 
+[Link to workshop page](https://monashbioinformaticsplatform.github.io/Single-Cell-Workshop/)

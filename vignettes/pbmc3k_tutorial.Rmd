@@ -4,6 +4,9 @@ output:
   html_document:
     theme: united
     df_print: kable
+    toc: true
+    toc_depth: 2
+    toc_float: true
 date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
 ---
 ***
@@ -32,14 +35,9 @@ knitr::opts_chunk$set(
 
 This content is the [Seurat PBMC tutorial](https://satijalab.org/seurat/articles/pbmc3k_tutorial.html) with an additional section to add in Monocle for pseudotime trajectory analysis.
 
-Download the [raw data](https://cf.10xgenomics.com/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz)
+Please go to the [installation page](installation.html) for instructions on how to install the libraries used for this workshop. There are also instructions for downloading the [raw data]((https://cf.10xgenomics.com/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz)) there as well. 
 
-Unzip it in the terminal with:
-
-```{bash, eval=FALSE}
-tar -xvf pbmc3k_filtered_gene_bc_matrices.tar.gz 
-```
-
+[The workshop homepage is here](https://monashbioinformaticsplatform.github.io/Single-Cell-Workshop/)
 
 # Setup the Seurat Object
 
@@ -586,7 +584,7 @@ Monocle currently thinks that all cells belong to the same partition. We might b
 
 If we examine the default parameters by `?FindClusters` and `?cluster_cells`, we might notice that Seurat's default clustering algorithm is `louvain` while Monocle's is `leiden`. We aren't going to delve into the details of these algorithms, but we will say, just be aware of the default behavior of your analysis tools and that the choice in algorithm will affect the results of the clustering.
 
-We can change algorithm with `cds <- cluster_cells(cds, cluster_method = "louvain")` but in this case, we might just try altering the resolution parameter with the default `leiden` algorithm to increase the number of clusters yielded 
+We can change algorithm with `cds <- cluster_cells(cds, cluster_method = "louvain")` but in this case, we might just try altering the resolution with the default `leiden` algorithm to increase the number of clusters yielded. Changing the `k` arguement will change the number of nearest neighbors used when creating the k nearest neighbor graph. A large K values (the default is 20) reduces the number of clusters (therefore the bigger k is, the less clusters will be generated) and vice versa (smaller k values - more clusters). 
 
 ```{r}
 cds <- cluster_cells(cds, k = 5, random_seed = 5)
@@ -595,7 +593,7 @@ p2 <- plot_cells(cds, color_cells_by = "partition", show_trajectory_graph = FALS
 wrap_plots(p1, p2)
 ```
 
-The UMAP on the left looks is underclustered compared to our original clustering with Seurat. We'd probably need to tweak more parameters to get Monocle to match the Seurat clustering. We don't necessarily need to do that because our `cds` object actually still has the meta-data about the seurat clusters stored in it (examine this with `head(colData(cds))`. However, importantly, our partition plot looks a little more sensible and no longer has lumped all cells into one supercluster. 
+The UMAP on the left looks underclustered compared to our original clustering with Seurat. We'd probably need to tweak more parameters to get Monocle to match the Seurat clustering. We don't necessarily need to do that because our `cds` object actually still has the meta-data about the seurat clusters stored in it (examine this with `head(colData(cds))`. However, importantly, our partition plot looks a little more sensible and no longer has lumped all cells into one supercluster. 
 
 Let's re-run the `learn_graph` step:
 
@@ -611,10 +609,11 @@ Monocle now 'correctly' builds trajectories that recognizes distinct cell lineag
 We might choose to remove the B-cells and monocytes and focus just on the cluster of CD4T/CD8T cells, as this is the largest group of cells.
 
 ```{r}
+# Create a vector of idents to keep
 selected_ids <- c("Naive CD4 T", "Memory CD4 T", "CD8 T")
 tcells_pbmc <- subset(pbmc, idents = selected_ids ) ## subset the PBMC seurat object to tcells
 cds <- as.cell_data_set(tcells_pbmc) ## convert this to cell_data_set
-cds <- cluster_cells(cds) ## Do not run this step with louvain - it might make your R session very unhappy
+cds <- cluster_cells(cds)
 cds <- learn_graph(cds) 
 plot_cells(cds, label_groups_by_cluster = FALSE, 
            label_leaves = FALSE, label_branch_points = FALSE)
@@ -664,8 +663,10 @@ plot_cells(cds, color_cells_by = "ident",
 Discuss the results of this pseudotime trajectory (remembering this is a bogus example):
 
 * CD8T cells are not the furthest cell type from the naive CD4 t-cells
-* Naive CD4 T-cells get split into two groups - cells at the root state and then cells that are intermediate in pseudotime 
-* Naive CD4 T cells shift into memory CD4 T-cells
+* Naive CD4 T-cells get split into two groups - cells at the root state and 'early' in terms of pseudotime and then cells that are at the end of the pseudotime  timeline
+* Would you interpret this as naive CD4 T cells shifting into memory CD4 T-cells then CD8T cells and then back to CD4 naive?
+* An analysis tool will always try to give you some sort of answer - it's important to think about whether the tool we're using is appropriate for a given dataset
+* What happens if we left in the NK cells?
 
 
 <details>
