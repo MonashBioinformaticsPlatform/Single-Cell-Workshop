@@ -1,5 +1,5 @@
 ---
-title: "Seurat - Guided Clustering Tutorial"
+title: "Seurat & Monocle - Guided Clustering Tutorial"
 output:
   html_document:
     theme: united
@@ -45,7 +45,7 @@ For this tutorial, we will be analyzing the a dataset of Peripheral Blood Mononu
 
 We start by reading in the data. The `Read10X()` function reads in the output of the [cellranger](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/what-is-cell-ranger) pipeline from 10X, returning a unique molecular identified (UMI) count matrix. The values in this matrix represent the number of molecules for each feature (i.e. gene; row) that are detected in each cell (column).
 
-We next use the count matrix to create a `Seurat` object. The object serves as a container that contains both data (like the count matrix) and analysis (like PCA, or clustering results) for a single-cell dataset. For a technical discussion of the `Seurat` object structure, check out our [GitHub Wiki](https://github.com/satijalab/seurat/wiki). For example, the count matrix is stored in `pbmc[["RNA"]]@counts`.
+We next use the count matrix to create a `Seurat` object. The object serves as a container that contains both data (like the count matrix) and analysis (like PCA, or clustering results) for a single-cell dataset. For a technical discussion of the `Seurat` object structure, check out the [GitHub Wiki](https://github.com/satijalab/seurat/wiki). For example, the count matrix is stored in `pbmc[["RNA"]]@counts`.
 
 <details>
   <summary>**Discussion on the Seurat Object in R**</summary>
@@ -580,7 +580,7 @@ Monocle currently thinks that all cells belong to the same partition. We might b
 
 If we examine the default parameters by `?FindClusters` and `?cluster_cells`, we might notice that Seurat's default clustering algorithm is `louvain` while Monocle's is `leiden`. We aren't going to delve into the details of these algorithms, but we will say, just be aware of the default behavior of your analysis tools and that the choice in algorithm will affect the results of the clustering.
 
-We can change algorithm with `cds <- cluster_cells(cds, cluster_method = "louvain")` but in this case, we might just try altering the resolution with the default `leiden` algorithm to increase the number of clusters yielded. Changing the `k` arguement will change the number of nearest neighbors used when creating the k nearest neighbor graph. A large K values (the default is 20) reduces the number of clusters (therefore the bigger k is, the less clusters will be generated) and vice versa (smaller k values - more clusters). 
+We can change algorithm with `cds <- cluster_cells(cds, cluster_method = "louvain")` but in this case, we might just try altering the resolution with the default `leiden` algorithm to increase the number of clusters yielded. Changing the `k` argument will change the number of nearest neighbors used when creating the k nearest neighbor graph. A large `k` value (the default is 20) reduces the number of clusters (therefore the bigger k is, the less clusters will be generated) and vice versa (smaller `k` value - more clusters). 
 
 ```{r}
 cds <- cluster_cells(cds, k = 5, random_seed = 5)
@@ -589,7 +589,7 @@ p2 <- plot_cells(cds, color_cells_by = "partition", show_trajectory_graph = FALS
 wrap_plots(p1, p2)
 ```
 
-The UMAP on the left looks underclustered compared to our original clustering with Seurat. We'd probably need to tweak more parameters to get Monocle to match the Seurat clustering. We don't necessarily need to do that because our `cds` object actually still has the meta-data about the seurat clusters stored in it (examine this with `head(colData(cds))`. However, importantly, our partition plot looks a little more sensible and no longer has lumped all cells into one supercluster. 
+The UMAP on the left looks under clustered compared to our original clustering with Seurat. We'd probably need to tweak more parameters to get Monocle to match the Seurat clustering. We don't necessarily need to do that because our `cds` object actually still has the meta-data about the Seurat clusters stored in it (examine this with `head(colData(cds))`. However, importantly, our partition plot looks a little more sensible and no longer has lumped all cells into one supercluster. 
 
 Let's re-run the `learn_graph` step:
 
