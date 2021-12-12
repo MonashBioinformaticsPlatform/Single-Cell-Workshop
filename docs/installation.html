@@ -175,15 +175,17 @@ pre code {
 <h2>Get the workshop material and data</h2>
 <p>In RStudio <strong>create a new project</strong>. This ensures all the files for this workshop are placed in their own folder.</p>
 <p>Once you’ve created a new project, run the following R code to download the workshop material and dataset:</p>
-<pre class="r"><code># Download the Rmarkdown files we will be working from
+<pre class="r"><code># Download the Rmarkdown file we will be working from
 download.file(
     &quot;https://raw.githubusercontent.com/MonashBioinformaticsPlatform/Single-Cell-Workshop/main/vignettes/pbmc3k_tutorial.Rmd&quot;,
     &quot;pbmc3k_tutorial.Rmd&quot;)
 
-# Download an unzip dataset
+
+# Download and untar the dataset
 download.file(
     &quot;http://10x.files.s3-us-west-2.amazonaws.com/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz&quot;,
     &quot;pbmc3k_filtered_gene_bc_matrices.tar.gz&quot;)
+
 untar(&quot;pbmc3k_filtered_gene_bc_matrices.tar.gz&quot;)</code></pre>
 </div>
 <div id="package-installation" class="section level2">
