@@ -18,11 +18,10 @@ In RStudio **create a new project**. This ensures all the files for this worksho
 Once you've created a new project, run the following R code to download the workshop material and dataset:
 
 ```{r eval=FALSE}
-# Download the Rmarkdown file we will be working from
+# Download the R file we will be working from
 download.file(
-    "https://raw.githubusercontent.com/MonashBioinformaticsPlatform/Single-Cell-Workshop/main/vignettes/pbmc3k_tutorial.Rmd",
-    "pbmc3k_tutorial.Rmd")
-
+    "https://raw.githubusercontent.com/MonashBioinformaticsPlatform/Single-Cell-Workshop/main/vignettes/pbmc3k_tutorial.R",
+    "pbmc3k_tutorial.R")
 
 # Download and untar the dataset
 download.file(
