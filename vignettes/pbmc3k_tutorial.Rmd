@@ -35,7 +35,7 @@ knitr::opts_chunk$set(
 
 This content is the [Seurat PBMC tutorial](https://satijalab.org/seurat/articles/pbmc3k_tutorial.html) with an additional section to add in Monocle for pseudotime trajectory analysis.
 
-Please go to the [installation page](installation.html) for instructions on how to install the libraries used for this workshop. There are also instructions for downloading the [raw data]((https://cf.10xgenomics.com/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz)) there as well. 
+Please go to the [installation page](installation.html) for instructions on how to install the libraries used for this workshop. There are also instructions for downloading the [raw data](http://cf.10xgenomics.com/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz) there as well. 
 
 [The workshop homepage is here](https://monashbioinformaticsplatform.github.io/Single-Cell-Workshop/)
 
@@ -85,8 +85,7 @@ library(Seurat)
 library(patchwork)
 
 # Load the PBMC dataset
-data.folder <- "../../data/pbmc3k"  ## Please change this line to wherever you have unzipped the raw data
-pbmc.data <- Read10X(data.dir = file.path(data.folder, "filtered_gene_bc_matrices/hg19/"))
+pbmc.data <- Read10X(data.dir = "filtered_gene_bc_matrices/hg19/")
 
 # Initialize the Seurat object with the raw (non-normalized data).
 pbmc <- CreateSeuratObject(counts = pbmc.data, project = "pbmc3k", min.cells = 3, min.features = 200)
@@ -403,7 +402,7 @@ DimPlot(pbmc, reduction = 'umap')
 You can save the object at this point so that it can easily be loaded back in without having to rerun the computationally intensive steps performed above, or easily shared with collaborators.
 
 ```{r saveobject, eval=FALSE}
-saveRDS(pbmc, file = "../output/pbmc_tutorial.rds")
+saveRDS(pbmc, file = "pbmc_tutorial.rds")
 ```
 
 ***
@@ -498,25 +497,19 @@ DimPlot(pbmc, reduction = 'umap', label = TRUE, pt.size = 0.5) + NoLegend()
 ```
 
 ```{r save.img, include=FALSE}
-library(ggplot2)
-dir.create("../output/images", recursive = TRUE)
 plot <- DimPlot(pbmc, reduction = "umap", label = TRUE, label.size = 4.5) + xlab("UMAP 1") + ylab("UMAP 2") + 
   theme(axis.title = element_text(size = 18), legend.text = element_text(size = 18)) + 
   guides(colour = guide_legend(override.aes = list(size = 10)))
-ggsave(filename = "../output/images/pbmc3k_umap.jpg", height = 7, width = 12, plot = plot, quality = 50)
+
+ggsave(filename = "pbmc3k_umap.jpg", height = 7, width = 12, plot = plot, quality = 50)
 ```
 
 ```{r save.rds, eval=FALSE}
-saveRDS(pbmc, file = "../output/pbmc3k_final.rds")
-```
-
-```{r save2, include = FALSE}
-saveRDS(pbmc, file = file.path(data.folder, "pbmc3k_final.rds"))
+saveRDS(pbmc, file = "pbmc3k_final.rds")
 ```
 
 ```{r save.times, include = FALSE}
-dir.create("../output/timings", recursive = TRUE)
-write.csv(x = t(as.data.frame(all_times)), file = "../output/timings/pbmc3k_tutorial_times.csv")
+write.csv(x = t(as.data.frame(all_times)), file = "pbmc3k_tutorial_times.csv")
 ```
 
 # Using Monocle For Pseudotime Trajectory
