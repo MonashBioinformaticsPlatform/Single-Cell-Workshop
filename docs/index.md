@@ -51,3 +51,28 @@ Install latest versions of:
 * [Monocle documentationn for trajectories](https://cole-trapnell-lab.github.io/monocle3/docs/trajectories/)
 * [Cell Annotation with SingleR](http://bioconductor.org/books/devel/SingleRBook/)
 * [VDJ analysis with Immcantation](https://immcantation.readthedocs.io/en/stable/)
+
+### Useful links arising from the discussion during the workshop
+
+* https://www.cell.com/cell-systems/fulltext/S2405-4712(20)30459-2
+*	https://pair-code.github.io/understanding-umap/
+*	https://osxdaily.com/2014/02/12/install-command-line-tools-mac-os-x/
+*	https://kb.10xgenomics.com/hc/en-us/articles/218169723-What-fraction-of-reads-map-to-ribosomal-proteins-
+*	https://kb.10xgenomics.com/hc/en-us/articles/360001086611-Why-do-I-see-a-high-level-of-mitochondrial-gene-expression-
+*	https://satijalab.org/seurat/articles/sctransform_vignette.html
+*	https://gtexportal.org/home/
+*	https://www.immgen.org/Databrowser19/DatabrowserPage.html
+*	https://singlecell.broadinstitute.org/single_cell/study/SCP345/ica-blood-mononuclear-cells-2-donors-2-sites?genes=HLA-DPA1#study-visualize
+*	https://github.com/jdblischak/workflowr
+*	https://bioconductor.org/packages/release/bioc/html/iSEE.html
+*	ShinyCell makes interactive Shiny app from Seurat output (https://github.com/SGDDNB/ShinyCell)
+*	https://www.nature.com/articles/s41598-019-41695-z
+*	Seems that the default seed for most functions in Seurat is set to 42 (by searching “seed” in https://cran.r-project.org/web/packages/Seurat/Seurat.pdf)
+*	https://stackoverflow.com/questions/6644997/showing-data-values-on-stacked-bar-chart-in-ggplot2
+*	https://github.com/rezakj/iCellR
+*	Diffusion maps for single cell instead of umaps: https://www.helmholtz-munich.de/icb/research/groups/marr-lab/software/destiny/index.html
+*	Common ref : http://bioconductor.org/packages/release/data/experiment/vignettes/celldex/inst/doc/userguide.html#2_General-purpose_references
+*	Azimuth is a Seurat-friendly reference-based annotation tool: https://azimuth.hubmapconsortium.org/references/#Human%20-%20PBMC
+*	https://www.bioconductor.org/packages/release/bioc/html/celaref.html
+*	http://bioconductor.org/books/3.14/OSCA.basic/dimensionality-reduction.html#visualization-interpretation
+
