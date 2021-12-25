@@ -1,4 +1,5 @@
 vignettes/.Rhistory
+vignettes/.RData
 .Rproj.user
 data/filtered_gene_bc_matrices/hg19/barcodes.tsv
 data/filtered_gene_bc_matrices/hg19/genes.tsv
