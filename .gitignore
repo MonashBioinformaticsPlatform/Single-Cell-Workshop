@@ -9,3 +9,9 @@ data/.DS_Store
 data/filtered_gene_bc_matrices/.DS_Store
 .DS_Store
 vignettes/vignettes.Rproj
+vignettes/filtered_gene_bc_matrices/
+vignettes/installation.html
+vignettes/pbmc3k_filtered_gene_bc_matrices.tar.gz
+vignettes/pbmc3k_tutorial.html
+vignettes/pbmc3k_tutorial_times.csv
+vignettes/pbmc3k_umap.jpg
