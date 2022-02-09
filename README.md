@@ -1,5 +1,12 @@
 # Single-Cell-Workshop
+
 Half day workshop with 10x
+
+To render the Rmd file to HTML use:
+
+```
+Rscript build.R
+```
 
 Current order of play and nominated instructors (TBC)
 

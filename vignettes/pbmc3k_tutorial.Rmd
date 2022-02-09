@@ -7,6 +7,7 @@ output:
     toc: true
     toc_depth: 2
     toc_float: true
+    css: style.css
 date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
 ---
 ***
@@ -47,8 +48,7 @@ We start by reading in the data. The `Read10X()` function reads in the output of
 
 We next use the count matrix to create a `Seurat` object. The object serves as a container that contains both data (like the count matrix) and analysis (like PCA, or clustering results) for a single-cell dataset. For a technical discussion of the `Seurat` object structure, check out the [GitHub Wiki](https://github.com/satijalab/seurat/wiki). For example, the count matrix is stored in `pbmc[["RNA"]]@counts`.
 
-<details>
-  <summary>**Discussion on the Seurat Object in R**</summary>
+## Discussion on the Seurat Object in R {.challenge}
 
 **Class**
 
@@ -76,7 +76,7 @@ analysis method.
 The ways to access the slots can be through methods for the class (functions) or with 
 standard R accessor nomenclature. 
   
-</details>
+##
 
 ```{r init}
 library(dplyr)
@@ -91,6 +91,7 @@ pbmc.data <- Read10X(data.dir = "filtered_gene_bc_matrices/hg19/")
 pbmc <- CreateSeuratObject(counts = pbmc.data, project = "pbmc3k", min.cells = 3, min.features = 200)
 pbmc
 ```
+
 <details>
   <summary>**What does data in a count matrix look like?**</summary>
 
@@ -109,12 +110,11 @@ sparse.size
 dense.size / sparse.size
 ```
 
-**Side Bar Challenge**
+</details>
+
+## Discussion on count matrix {.challenge}
 
 The count matrix represents all the cells in the sample (columns) and the genes (rows), why would most count values of genes in cells be zero?
-
-</details>
-\
 
 # Standard pre-processing workflow
 
@@ -167,8 +167,7 @@ plot2 <- FeatureScatter(pbmc, feature1 = "nCount_RNA", feature2 = "nFeature_RNA"
 plot1 + plot2
 ```
 
-<details>
-  <summary>**Challenge Side Bar - What are the appropriate thresholds to use to remove poor QC cells?**</summary>
+## Challenge: What are the appropriate thresholds to use to remove poor QC cells? {.challenge}
  
 Are the thresholds we set, reasonable? 
 What happens if we relax the thresholds? 
@@ -179,8 +178,7 @@ plot3 <- FeatureScatter(pbmc, feature1 = "nFeature_RNA", feature2 = "percent.mt"
 plot3
 ```
 
-  
-</details>
+##
 
 Okay we are happy with our thresholds, lets apply them and subset our data. This will remove
 the cells we think are of poor quality. 
@@ -189,9 +187,7 @@ the cells we think are of poor quality.
 pbmc <- subset(pbmc, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 5)
 ```
 
-
-<details>
-  <summary>**Challenge Side Bar - Feature Plots after subsetting**</summary>
+## Challenge: Feature Plots after subsetting {.challenge}
 
 Lets replot the feature scatters and see what they look like. 
 
@@ -204,9 +200,6 @@ plot1 + plot5
 plot2 + plot6
 ```
 
-</details>
-
-***
 
 # Normalizing the data
 
@@ -239,8 +232,8 @@ plot2 <- LabelPoints(plot = plot1, points = top10, repel = TRUE)
 plot1 + plot2
 ```
 
-<details>
-  <summary>**Challenge Side Bar - Labelling Genes of Interest**</summary>
+## Challenge: Labelling Genes of Interest {.challenge}
+
 What if we wanted to see more genes of interest? What can we do? Increase the number of top genes.
 
 ```{r var_features2, fig.height=5, fig.width=11}
@@ -252,10 +245,6 @@ plot3 <- LabelPoints(plot = plot1, points = top20, repel = TRUE)
 plot2 + plot3
 ```
 
-</details>
-
-
-***
 
 # Scaling the data
 
@@ -449,7 +438,7 @@ RidgePlot(pbmc, features = c("MS4A1", "GNLY", "CD3E", "CD14", "FCER1A", "FCGR3A"
 For CellScatter plots, will need the cell id of the cells you want to look at. You could access
 this using the `[[` notation.
 ```{r}
-pbmc[[]]
+head( pbmc[[]] )
 CellScatter(pbmc, cell1 = "AAACATACAACCAC-1", cell2 = "AAACATTGAGCTAC-1")
 ```
 
