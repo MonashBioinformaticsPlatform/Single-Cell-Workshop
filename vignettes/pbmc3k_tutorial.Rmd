@@ -48,35 +48,6 @@ We start by reading in the data. The `Read10X()` function reads in the output of
 
 We next use the count matrix to create a `Seurat` object. The object serves as a container that contains both data (like the count matrix) and analysis (like PCA, or clustering results) for a single-cell dataset. For a technical discussion of the `Seurat` object structure, check out the [GitHub Wiki](https://github.com/satijalab/seurat/wiki). For example, the count matrix is stored in `pbmc[["RNA"]]@counts`.
 
-## Discussion on the Seurat Object in R {.challenge}
-
-**Class**
-
-These are essentially data containers in R as a class, and can accessed as a variable in the
-R environment. 
-
-Classes are pre-defined and can contain multiple data tables and metadata. For
-Seurat, there are three types. 
-
-* Seurat - the main data class, contains all the data.
-* Assay - found within the Seurat object. RNA, ATAC 
-* DimReduc - for PCA and UMAP
-
-**Slots**
-
-Slots are parts within a class that contain specific data. These can be lists, 
-data tables and vectors. 
-
-**Data Access**
-
-Many of the functions in Seurat operate on the data class and slots within them seamlessly, 
-there maybe occasion to acess these separately to `hack` them however, this is an advanced 
-analysis method. 
-
-The ways to access the slots can be through methods for the class (functions) or with 
-standard R accessor nomenclature. 
-  
-##
 
 ```{r init}
 library(dplyr)
@@ -112,9 +83,76 @@ dense.size / sparse.size
 
 </details>
 
-## Discussion on count matrix {.challenge}
 
-The count matrix represents all the cells in the sample (columns) and the genes (rows), why would most count values of genes in cells be zero?
+## Discussion on the Seurat Object in R {.challenge}
+Lets take a look at the seurat object we have just created in R, `pbmc`
+
+To accomodate the complexity of data arising from a single cell RNA seq experiment, the seurat object keeps this as a container of multiple data tables that are linked.
+
+The functions in seurat can access parts of the data object for analysis and visualisation, we will cover this later on. 
+
+There are a couple of concepts to discuss here.
+<details>
+<summary>**Class**</summary>
+
+These are essentially data containers in R as a class, and can accessed as a variable in the
+R environment. 
+
+Classes are pre-defined and can contain multiple data tables and metadata. For
+Seurat, there are three types. 
+
+* Seurat - the main data class, contains all the data.
+* Assay - found within the Seurat object. Depending on the experiment a cell could have data on RNA, ATAC etc measured
+* DimReduc - for PCA and UMAP
+
+</details>
+
+<details>
+<summary>**Slots**</summary>
+
+Slots are parts within a class that contain specific data. These can be lists, 
+data tables and vectors and can be accessed with conventional R methods 
+</details>
+
+
+<details>
+<summary>**Data Access**</summary>
+
+Many of the functions in Seurat operate on the data class and slots within them seamlessly, 
+there maybe occasion to acess these separately to `hack` them however, this is an advanced 
+analysis method. 
+
+The ways to access the slots can be through methods for the class (functions) or with 
+standard R accessor nomenclature. 
+</details>
+
+Lets take a look at some things within the seurat object. We can do this with the `str` function in R.
+
+What is in the `meta.data` slot within your seurat object currently? What type of data is contained here?
+
+Where is our count data within the seurat object? 
+
+
+<details>
+<summary>**Example code for challenge and outputs**</summary>
+
+```{r}
+## To look at our seurat object
+str(pbmc)
+
+## To access the meta.data slot
+pbmc@meta.data
+
+## meta.data contains cell metadata identified by cell barcode, currently there is nFeatures and nCounts
+
+## the actual count data can be found by which is what we had in `pbmc.data` lots of accessors here!
+pbmc@assays$RNA@counts
+
+## this is the data object in pbmc.data but is now stored within the seurat object
+pbmc@assays$RNA@counts[c("CD3D","TCL1A","MS4A1"), 1:30]
+```
+</details>
+
 
 # Standard pre-processing workflow
 
@@ -138,6 +176,9 @@ Seurat allows you to easily explore QC metrics and filter cells based on any use
 pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
 ```
 
+\  
+
+## The meta.data slot in the seurat object {.challenge}
 <details>
   <summary>**Where are QC metrics stored in Seurat?**</summary>
 
@@ -148,8 +189,12 @@ pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
 head(pbmc@meta.data, 5)
 ```
 </details>
-\  
 
+What do you noticed has changed within the `meta.data` table now that we have calculated mitochondrial gene proportion?
+
+Could we add more data into the `meta.data` table? 
+
+##
 In the example below, we visualize QC metrics, and use these to filter cells.
 
 * We filter cells that have unique feature counts over 2,500 or less than 200
@@ -167,11 +212,9 @@ plot2 <- FeatureScatter(pbmc, feature1 = "nCount_RNA", feature2 = "nFeature_RNA"
 plot1 + plot2
 ```
 
-## Challenge: What are the appropriate thresholds to use to remove poor QC cells? {.challenge}
+## Challenge: Ribosomal gene expression as a QC metric {.challenge}
  
-Are the thresholds we set, reasonable? 
-What happens if we relax the thresholds? 
-Lets plot the percent mt with number of features.
+Ribosomal gene expression could be another factor to look like in your data
 
 ```{r}
 plot3 <- FeatureScatter(pbmc, feature1 = "nFeature_RNA", feature2 = "percent.mt") 
@@ -509,7 +552,7 @@ This content is based off the [Calculating Trajectories with Monocle 3 and Seura
 
 Firstly, load Monocle:
 
-```{r}
+```{r , eval = FALSE} 
 library(monocle3)
 library(SeuratWrappers)
 ```
@@ -520,7 +563,7 @@ While we have performed the general analysis steps of quality control, scaling a
 ![](https://cole-trapnell-lab.github.io/monocle3/images/monocle3_new_workflow.png)
 We aren't going to delve deeply into the properties of the `cell_data_set` object. Just be aware that this is a different way to represent the count assay data and dimensionality reduction data. The functions from the `Monocle` package expects the scRNA data to be this class and therefore, the Seurat object needs to be converted to this class. It also means that the Seurat functions that we've been using will not work with the `cell_data_set` object. 
 
-```{r}
+```{r , eval = FALSE}
 cds <- as.cell_data_set(pbmc)
 ```
 
@@ -528,7 +571,7 @@ While we have previously clustered the pbmc dataset using Seurat, Monocle will a
 
 Examine the cds object:
 
-```{r}
+```{r , eval = FALSE}
 ## Inspect the cds object and compare it to the Seurat pbmc object
 cds
 ```
@@ -537,7 +580,7 @@ cds
 Now re-cluster the cds object:
 
 
-```{r}
+```{r , eval = FALSE}
 cds <- cluster_cells(cds)
 p1 <- plot_cells(cds, show_trajectory_graph = FALSE)
 p2 <- plot_cells(cds, color_cells_by = "partition", show_trajectory_graph = FALSE)
@@ -554,7 +597,7 @@ We can see from this figure of haematopoiesis that our PBMC sample contains a mi
 
 Next, we need to run `learn_graph` to learn the trajectory graph. This function aims to learn how cells transition through a biological program of gene expression changes in an experiment.
 
-```{r}
+```{r , eval = FALSE}
 cds <- learn_graph(cds)
 plot_cells(cds, label_groups_by_cluster = FALSE, 
            label_leaves = FALSE, 
@@ -571,7 +614,7 @@ If we examine the default parameters by `?FindClusters` and `?cluster_cells`, we
 
 We can change algorithm with `cds <- cluster_cells(cds, cluster_method = "louvain")` but in this case, we might just try altering the resolution with the default `leiden` algorithm to increase the number of clusters yielded. Changing the `k` argument will change the number of nearest neighbors used when creating the k nearest neighbor graph. A large `k` value (the default is 20) reduces the number of clusters (therefore the bigger k is, the less clusters will be generated) and vice versa (smaller `k` value - more clusters). 
 
-```{r}
+```{r , eval = FALSE}
 cds <- cluster_cells(cds, k = 5, random_seed = 5)
 p1 <- plot_cells(cds, show_trajectory_graph = FALSE)
 p2 <- plot_cells(cds, color_cells_by = "partition", show_trajectory_graph = FALSE)
@@ -582,7 +625,7 @@ The UMAP on the left looks under clustered compared to our original clustering w
 
 Let's re-run the `learn_graph` step:
 
-```{r}
+```{r , eval = FALSE}
 cds <- learn_graph(cds)
 plot_cells(cds, color_cells_by = "partition", 
            label_groups_by_cluster = FALSE, 
@@ -593,7 +636,7 @@ Monocle now 'correctly' builds trajectories that recognizes distinct cell lineag
 
 We might choose to remove the B-cells and monocytes and focus just on the cluster of CD4T/CD8T cells, as this is the largest group of cells.
 
-```{r}
+```{r , eval = FALSE}
 # Create a vector of idents to keep
 selected_ids <- c("Naive CD4 T", "Memory CD4 T", "CD8 T")
 tcells_pbmc <- subset(pbmc, idents = selected_ids ) ## subset the PBMC seurat object to tcells
@@ -617,7 +660,7 @@ The next step is to order cells in pseudotime:
 
 Monocle needs to be told where the 'beginning' of the biological process is. There are a variety of ways that this can be determined - the Monocle documentation has a custom function to find the root of the trajectory based on a subset of cells. If the `order_cells` function is used without providing which cells to use, it will launch an interface in which we can directly select cells we think are at the beginning of the trajectory.
 
-```{r}
+```{r , eval = FALSE}
 # a helper function to identify the root principal points:
 get_earliest_principal_node <- function(cds,  cell_type="Naive CD4 T"){
   cell_ids <- which(colData(cds)[, "ident"] == cell_type)
@@ -636,7 +679,7 @@ cds <- order_cells(cds, root_pr_nodes=get_earliest_principal_node(cds))
 
 We can now plot the trajectory and color cells by pseudotime:
 
-```{r}
+```{r , eval = FALSE}
 plot_cells(cds, color_cells_by = "pseudotime", 
                  label_cell_groups = FALSE, label_leaves = FALSE, 
                  label_branch_points = FALSE)
