@@ -22,7 +22,7 @@ Current order of play and nominated instructors (TBC)
 | 1:00 - 1:45 | Dimensionality Reduction | Paul        | 45 min |
 | 1:45 - 2:30 | Clustering               | Paul      | 45 min |
 | 2:30 - 2:45 | **Break** | | 15 min
-| 2:45 - 3:30 | Cluster Identification            | Adele          | 45 min |
+| 2:45 - 3:30 | Cluster Identification            | Nitika         | 45 min |
 | 3:30 - 4:00 | Single Cell further | Nick | 30 min
 | 4:00 - 4:30 | (Trajectory Analysis (Monocle)) | Adele   | 30 min | to be removed
 
