@@ -84,7 +84,7 @@ dense.size / sparse.size
 </details>
 
 
-## Discussion on the Seurat Object in R {.challenge}
+#### Discussion on the Seurat Object in R {.challenge}
 Lets take a look at the seurat object we have just created in R, `pbmc`
 
 To accomodate the complexity of data arising from a single cell RNA seq experiment, the seurat object keeps this as a container of multiple data tables that are linked.
@@ -178,7 +178,7 @@ pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
 
 \  
 
-## The meta.data slot in the seurat object {.challenge}
+#### The meta.data slot in the seurat object {.challenge}
 <details>
   <summary>**Where are QC metrics stored in Seurat?**</summary>
 
@@ -219,8 +219,7 @@ plot3 <- FeatureScatter(pbmc, feature1 = "nFeature_RNA", feature2 = "percent.mt"
 plot3
 ```
 
-## Challenge: Ribosomal gene expression as a QC metric {.challenge}
- 
+#### Challenge: Ribosomal gene expression as a QC metric {.challenge}
 Ribosomal gene expression could be another factor to look into your cells within your experiment.
 
 Create more columns of metadata using `PercentageFeatureSet` function, this time search for ribosomal genes. We can 
@@ -253,8 +252,7 @@ plot2
 
 There are cells with low ribosome and low mitochondrial gene percentages, and some outliers too (low ribo, high mt)
 
-These are the cells you may want to exclude
-
+These are the cells you may want to exclude.
 </detail>
 
 
@@ -269,7 +267,6 @@ pbmc[["lowRiboL"]] <- pbmc[["percent.riboL"]] <= 5
 plot1 <- FeatureScatter(pbmc, feature1 = "nCount_RNA", feature2 = "percent.mt", group.by = "lowRiboL")
 plot1
 ```
-
 </detail>
 ##
 
@@ -320,7 +317,7 @@ plot2 <- LabelPoints(plot = plot1, points = top10, repel = TRUE)
 plot1 + plot2
 ```
 
-## Challenge: Labelling Genes of Interest {.challenge}
+#### Challenge: Labelling Genes of Interest {.challenge}
 
 What if we wanted to look at genes we are specifically interested in? We can create a character vector of gene names and apply that to this plot.
 
