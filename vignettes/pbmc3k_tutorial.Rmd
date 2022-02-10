@@ -212,25 +212,73 @@ plot2 <- FeatureScatter(pbmc, feature1 = "nCount_RNA", feature2 = "nFeature_RNA"
 plot1 + plot2
 ```
 
-## Challenge: Ribosomal gene expression as a QC metric {.challenge}
- 
-Ribosomal gene expression could be another factor to look like in your data
+Lets look at the number of features (genes) to the percent mitochondrial genes plot.
 
 ```{r}
 plot3 <- FeatureScatter(pbmc, feature1 = "nFeature_RNA", feature2 = "percent.mt") 
 plot3
 ```
 
+## Challenge: Ribosomal gene expression as a QC metric {.challenge}
+ 
+Ribosomal gene expression could be another factor to look into your cells within your experiment.
+
+Create more columns of metadata using `PercentageFeatureSet` function, this time search for ribosomal genes. We can 
+calculate the percentage for the large subunit (RPL) and small subunit (RPL) ribosomal genes. 
+
+Use `FeatureScatter` to plot combinations of metrics available in metadata. How is the mitochondrial gene percentage related to the ribosomal gene percentage? 
+What can you see? Discuss in break out?
+
+<detail>
+<summary>**Code for challenge**</summary>
+Create new meta.data columns to contain percentages of the large and small ribosomal genes.
+
+Then plot a scatter plot with this new data.
+
+```{r}
+pbmc[["percent.riboL"]] <- PercentageFeatureSet(pbmc, pattern = "^RPL")
+pbmc[["percent.riboS"]] <- PercentageFeatureSet(pbmc, pattern = "^RPS")
+
+plot1 <- FeatureScatter(pbmc, feature1 = "percent.riboS", feature2 = "percent.riboL")
+plot1
+```
+The large and small ribosomal subunit genes are correlated within cell. 
+
+What about with mitochondria and gene, feature counts?
+
+```{r}
+plot2 <- FeatureScatter(pbmc, feature1 = "percent.riboL", feature2 = "percent.mt")
+plot2
+```
+
+There are cells with low ribosome and low mitochondrial gene percentages, and some outliers too (low ribo, high mt)
+
+These are the cells you may want to exclude
+
+</detail>
+
+
+<detail>
+<summary>**Advanced Challenge**</summary>
+Highlight cells with very low percentage of ribosomal genes, create a new column in the meta.data table and 
+with `FeatureScatter` make a plot of the RNA count and mitochondrial percentage with the cells with very low
+ribosomal gene perentage.
+
+```{r}
+pbmc[["lowRiboL"]] <- pbmc[["percent.riboL"]] <= 5
+plot1 <- FeatureScatter(pbmc, feature1 = "nCount_RNA", feature2 = "percent.mt", group.by = "lowRiboL")
+plot1
+```
+
+</detail>
 ##
 
-Okay we are happy with our thresholds, lets apply them and subset our data. This will remove
+Okay we are happy with our thresholds for mitochondrial percentage in cells, lets apply them and subset our data. This will remove
 the cells we think are of poor quality. 
 
 ```{r}
 pbmc <- subset(pbmc, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 5)
 ```
-
-## Challenge: Feature Plots after subsetting {.challenge}
 
 Lets replot the feature scatters and see what they look like. 
 
@@ -238,11 +286,8 @@ Lets replot the feature scatters and see what they look like.
 plot5 <- FeatureScatter(pbmc, feature1 = "nCount_RNA", feature2 = "percent.mt") 
 plot6 <- FeatureScatter(pbmc, feature1 = "nCount_RNA", feature2 = "nFeature_RNA") 
 
-plot1 + plot5
-
-plot2 + plot6
+plot5 + plot6
 ```
-
 
 # Normalizing the data
 
@@ -277,14 +322,16 @@ plot1 + plot2
 
 ## Challenge: Labelling Genes of Interest {.challenge}
 
-What if we wanted to see more genes of interest? What can we do? Increase the number of top genes.
+What if we wanted to look at genes we are specifically interested in? We can create a character vector of gene names and apply that to this plot.
+
+Lets look at some genes that could be of interest such as IL8, IDH2 and CXCL3
 
 ```{r var_features2, fig.height=5, fig.width=11}
-# Identify the 10 most highly variable genes
-top20 <- head(VariableFeatures(pbmc), 20)
+# create a vector of genes of interest
+goi <- c("IL8", "IDH2", "CXCL3")
 
 # plot variable features with and without labels
-plot3 <- LabelPoints(plot = plot1, points = top20, repel = TRUE)
+plot3 <- LabelPoints(plot = plot1, points = goi, repel = TRUE)
 plot2 + plot3
 ```
 
