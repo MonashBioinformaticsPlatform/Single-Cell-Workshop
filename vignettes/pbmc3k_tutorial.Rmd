@@ -228,7 +228,7 @@ calculate the percentage for the large subunit (RPL) and small subunit (RPL) rib
 Use `FeatureScatter` to plot combinations of metrics available in metadata. How is the mitochondrial gene percentage related to the ribosomal gene percentage? 
 What can you see? Discuss in break out?
 
-<detail>
+<details>
 <summary>**Code for challenge**</summary>
 Create new meta.data columns to contain percentages of the large and small ribosomal genes.
 
@@ -253,10 +253,10 @@ plot2
 There are cells with low ribosome and low mitochondrial gene percentages, and some outliers too (low ribo, high mt)
 
 These are the cells you may want to exclude.
-</detail>
+</details>
 
 
-<detail>
+<details>
 <summary>**Advanced Challenge**</summary>
 Highlight cells with very low percentage of ribosomal genes, create a new column in the meta.data table and 
 with `FeatureScatter` make a plot of the RNA count and mitochondrial percentage with the cells with very low
@@ -267,7 +267,8 @@ pbmc[["lowRiboL"]] <- pbmc[["percent.riboL"]] <= 5
 plot1 <- FeatureScatter(pbmc, feature1 = "nCount_RNA", feature2 = "percent.mt", group.by = "lowRiboL")
 plot1
 ```
-</detail>
+</details>
+
 ##
 
 Okay we are happy with our thresholds for mitochondrial percentage in cells, lets apply them and subset our data. This will remove
