@@ -2,7 +2,7 @@
 
 Half day workshop with 10x
 
-To render the Rmd file to HTML use:
+To render the Rmd file to HTML and R use:
 
 ```
 Rscript build.R

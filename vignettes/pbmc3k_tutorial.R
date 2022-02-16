@@ -274,7 +274,7 @@ pbmc <- ScaleData(pbmc, features = all.genes)
 
 # Scaling is an essential step in the Seurat workflow, but only on genes that will be used as input to PCA. Therefore, the default in `ScaleData()` is only to perform scaling on the previously identified variable features (2,000 by default). To do this, omit the `features` argument in the previous function call, i.e.
 
-pbmc <- ScaleData(pbmc)
+# pbmc <- ScaleData(pbmc)
 
 # Your PCA and clustering results will be unaffected. However, Seurat heatmaps (produced as shown below with `DoHeatmap()`) require genes in the heatmap to be scaled, to make sure highly-expressed genes don't dominate the heatmap. To make sure we don't leave any genes out of the heatmap later, we are scaling all genes in this tutorial.
 
@@ -282,7 +282,7 @@ pbmc <- ScaleData(pbmc)
 
 # In `Seurat v2` we also use the `ScaleData()` function to remove unwanted sources of variation from a single-cell dataset. For example, we could 'regress out' heterogeneity associated with (for example) cell cycle stage, or mitochondrial contamination. These features are still supported in `ScaleData()` in `Seurat v3`, i.e.:
 
-pbmc <- ScaleData(pbmc, vars.to.regress = 'percent.mt')
+# pbmc <- ScaleData(pbmc, vars.to.regress = 'percent.mt')
 
 # However, particularly for advanced users who would like to use this functionality, we strongly recommend the use of our new normalization workflow, `SCTransform()`. The method is described in our [paper](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1874-1), with a separate vignette using Seurat v3 [here](sctransform_vignette.html). As with `ScaleData()`, the function `SCTransform()` also includes a `vars.to.regress` parameter.
 
@@ -374,6 +374,13 @@ DimPlot(pbmc, reduction = 'umap')
 # You can save the object at this point so that it can easily be loaded back in without having to rerun the computationally intensive steps performed above, or easily shared with collaborators.
 
 saveRDS(pbmc, file = "pbmc_tutorial.rds")
+
+
+#### Challenge - try different cluster settings --------
+
+# Run `FindNeighbours` and `FindClusters` again, with a different number of dimensions or with a different resolution. Examine the resulting clusters using `DimPlot`.
+
+# To maintain the flow of this tutorial, please put the output of this exploration in a different variable, such as `pbmc2`!
 
 
 # Finding differentially expressed features (cluster biomarkers) --------
