@@ -596,11 +596,12 @@ write.csv(x = t(as.data.frame(all_times)), file = "pbmc3k_tutorial_times.csv")
 ```
 
 # Using SingleR to assign cell type identity to each cell
-
-XXX - Should this be here? Install the necessary packages for this step.
 ```{r}
 #install.packages("BiocManager")
 #BiocManager::install(c("SingleCellExperiment","SingleR","celldex"),ask=F)
+library(SingleCellExperiment)
+library(SingleR)
+library(celldex)
 ```
 
 In this workshop we have focused on the Seurat package.  However, there is another whole ecosystem of R packages for single cell analysis within Bioconductor.  We won't go into any detail on these packages in this workshop, but there is good material describing the object type online : [OSCA](https://robertamezquita.github.io/orchestratingSingleCellAnalysis/data-infrastructure.html).
@@ -616,7 +617,7 @@ We will now use a package called SingleR to label each cell.  SingleR uses a ref
 ```{r}
 ls('package:celldex')
 ```
-In this example, we'll use the `HumanPrimaryCellAtlasData` set, which contains high-level, and fine-grained label types.
+In this example, we'll use the `HumanPrimaryCellAtlasData` set, which contains high-level, and fine-grained label types. Lets download the reference dataset
 
 ```{r}
 ref.set <- celldex::HumanPrimaryCellAtlasData()
