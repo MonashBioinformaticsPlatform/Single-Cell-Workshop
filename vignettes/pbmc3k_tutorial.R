@@ -88,12 +88,12 @@ dense.size / sparse.size
 str(pbmc)
 
 ## To access the meta.data slot
-pbmc@meta.data
+head(pbmc@meta.data, n = 5)
 
 ## meta.data contains cell metadata identified by cell barcode, currently there is nFeatures and nCounts
 
 ## the actual count data can be found by which is what we had in `pbmc.data` lots of accessors here!
-pbmc@assays$RNA@counts
+head(pbmc@assays$RNA@counts, n = 5)
 
 ## this is the data object in pbmc.data but is now stored within the seurat object
 pbmc@assays$RNA@counts[c("CD3D","TCL1A","MS4A1"), 1:30]
@@ -457,6 +457,46 @@ DimPlot(pbmc, reduction = 'umap', label = TRUE, pt.size = 0.5) + NoLegend()
 saveRDS(pbmc, file = "pbmc3k_final.rds")
 
 write.csv(x = t(as.data.frame(all_times)), file = "pbmc3k_tutorial_times.csv")
+
+
+# Using SingleR to assign cell type identity to each cell --------
+
+#install.packages("BiocManager")
+#BiocManager::install(c("SingleCellExperiment","SingleR","celldex"),ask=F)
+library(SingleCellExperiment)
+library(SingleR)
+library(celldex)
+
+# In this workshop we have focused on the Seurat package.  However, there is another whole ecosystem of R packages for single cell analysis within Bioconductor.  We won't go into any detail on these packages in this workshop, but there is good material describing the object type online : [OSCA](https://robertamezquita.github.io/orchestratingSingleCellAnalysis/data-infrastructure.html).
+
+# For now, we'll just convert our Seurat object into an object called SingleCellExperiment.  Some popular packages from Bioconductor that work with this type are Slingshot, Scran, Scater.
+
+sce <- as.SingleCellExperiment(pbmc)
+
+# We will now use a package called SingleR to label each cell.  SingleR uses a reference data set of cell types with expression data to infer the best label for each cell.  A convenient collection of cell type reference is in the `celldex` package which currently contains the follow sets:
+
+ls('package:celldex')
+
+# In this example, we'll use the `HumanPrimaryCellAtlasData` set, which contains high-level, and fine-grained label types.
+
+ref.set <- celldex::HumanPrimaryCellAtlasData()
+head(unique(ref.set$label.main))
+
+# An example of the types of "fine" labels.
+
+head(unique(ref.set$label.fine))
+
+# Now we'll label our cells using the SingleCellExperiment object, with the above reference set.
+
+pred.cnts <- SingleR::SingleR(test = sce, ref = ref.set, labels = ref.set$label.main)
+
+# Keep any types that have more than 10 cells to the label, and put those labels back on our Seurat object and plot our on our umap.
+
+lbls.keep <- table(pred.cnts$first.labels)>10
+pbmc[["SingleR.labels"]] <- ifelse(lbls.keep[pred.cnts$first.labels], pred.cnts$first.labels, 'Other')
+DimPlot(pbmc, reduction='umap', group.by='SingleR.labels')
+
+# It is nice to see that SingleR does not use the clusters we computed earlier, but the labels do seem to match those clusters reasonably well.
 
 
 # Using Monocle For Pseudotime Trajectory --------
