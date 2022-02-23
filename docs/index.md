@@ -4,9 +4,9 @@ In partnership with 10X Genomics
 
 Monday and Tuesday, 1st and 3rd of March
 
-Instructors: Dr David Powell, Dr Paul Harrison, Dr Nick Wong, Dr Dee Deveson-Lucas, Nitika Kandhari, Peinan Zhao
+Instructors: Dr David Powell, Dr Paul Harrison, Dr Nick Wong, Dr Dee Deveson-Lucas, Nitika Kandhari, Peinan Zhao, Patrick Deng
 
-## Day Two: Using Cell Ranger, Loupe, Seurat, and Monocle
+## Day Two: Using Seurat (SingleR and Monocle)
 
 This workshop, conducted by the Monash Bioinformatics Platform, will cover how to extend analysis to contemporary third-party tools, Seurat and Monocle. We will be walking through the 3K PBMC Dataset Tutorial and extend this to Monocle with some trajectory analysis.
 
@@ -54,7 +54,7 @@ Install latest versions of:
 
 ### Useful links arising from the discussion during the workshop
 *	[10x Genomics link to ribosomal protein expression](https://kb.10xgenomics.com/hc/en-us/articles/218169723-What-fraction-of-reads-map-to-ribosomal-proteins-)
-*	[10x Genomics link to mitochondrial gene expression]()]https://kb.10xgenomics.com/hc/en-us/articles/360001086611-Why-do-I-see-a-high-level-of-mitochondrial-gene-expression-)
+*	[10x Genomics link to mitochondrial gene expression](https://kb.10xgenomics.com/hc/en-us/articles/360001086611-Why-do-I-see-a-high-level-of-mitochondrial-gene-expression-)
 *   [scRNA Tools, catelogue of tools for scRNA Seq analysis](https://www.scrna-tools.org/)
 #### Data interpretation
 *	[Interactive website explaining UMAP and comparision to t-SNE.](https://pair-code.github.io/understanding-umap/)
