@@ -596,7 +596,10 @@ write.csv(x = t(as.data.frame(all_times)), file = "pbmc3k_tutorial_times.csv")
 ```
 
 # Using SingleR to assign cell type identity to each cell
+<<<<<<< HEAD
 
+=======
+>>>>>>> 9d6c363022f8c095d30f4c8a21f78e488e31b6bb
 ```{r}
 #install.packages("BiocManager")
 #BiocManager::install(c("SingleCellExperiment","SingleR","celldex"),ask=F)
@@ -618,7 +621,7 @@ We will now use a package called SingleR to label each cell.  SingleR uses a ref
 ```{r}
 ls('package:celldex')
 ```
-In this example, we'll use the `HumanPrimaryCellAtlasData` set, which contains high-level, and fine-grained label types.
+In this example, we'll use the `HumanPrimaryCellAtlasData` set, which contains high-level, and fine-grained label types. Lets download the reference dataset
 
 ```{r}
 ref.set <- celldex::HumanPrimaryCellAtlasData()
