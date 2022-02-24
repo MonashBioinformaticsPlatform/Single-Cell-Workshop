@@ -48,7 +48,8 @@ remotes::install_github('satijalab/seurat-wrappers')
 if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
 
-BiocManager::install(c('BiocGenerics', 'DelayedArray', 'DelayedMatrixStats',
+BiocManager::install(c('SingleR', 'celldex',
+                       'BiocGenerics', 'DelayedArray', 'DelayedMatrixStats',
                        'limma', 'S4Vectors', 'SingleCellExperiment',
                        'SummarizedExperiment', 'batchelor', 'Matrix.utils'))
 

@@ -3,6 +3,7 @@ library(stringr)
 
 build_html <- function() {
     rmarkdown::render("vignettes/installation.Rmd", output_dir="docs")
+    rmarkdown::render("vignettes/solutions.Rmd", output_dir="docs")
     rmarkdown::render("vignettes/pbmc3k_tutorial.Rmd", output_dir="docs")
 }
 
@@ -29,7 +30,7 @@ build_r <- function() {
             state <- "main"
             need_blank <- TRUE
         } else if (state == "main") {
-            clean_line <- str_replace_all(line,"<details>|</details>|<summary>|</summary>|\\{\\..*\\}","")
+            clean_line <- str_replace_all(line,"`|<details>|</details>|<summary>|</summary>|\\{\\..*\\}","")
             clean_line <- str_trim(clean_line, "right")
             if (clean_line=="" || clean_line=="\\" || clean_line=="***") {
                 need_blank <- TRUE

@@ -34,7 +34,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-This content is the [Seurat PBMC tutorial](https://satijalab.org/seurat/articles/pbmc3k_tutorial.html) with an additional section to add in Monocle for pseudotime trajectory analysis.
+This content is the [Seurat PBMC tutorial](https://satijalab.org/seurat/articles/pbmc3k_tutorial.html) with an additional sections on SingleR for cell type classification and Monocle for pseudotime trajectory analysis.
 
 Please go to the [installation page](https://monashbioinformaticsplatform.github.io/Single-Cell-Workshop/installation.html) for instructions on how to install the libraries used for this workshop. There are also instructions for downloading the [raw data](http://cf.10xgenomics.com/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz) there as well. 
 
@@ -46,7 +46,7 @@ For this tutorial, we will be analyzing the a dataset of Peripheral Blood Mononu
 
 We start by reading in the data. The `Read10X()` function reads in the output of the [cellranger](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/what-is-cell-ranger) pipeline from 10X, returning a unique molecular identified (UMI) count matrix. The values in this matrix represent the number of molecules for each feature (i.e. gene; row) that are detected in each cell (column).
 
-We next use the count matrix to create a `Seurat` object. The object serves as a container that contains both data (like the count matrix) and analysis (like PCA, or clustering results) for a single-cell dataset. For a technical discussion of the `Seurat` object structure, check out the [GitHub Wiki](https://github.com/satijalab/seurat/wiki). For example, the count matrix is stored in `pbmc[["RNA"]]@counts`.
+We next use the count matrix to create a `Seurat` object. The object serves as a container that contains both data (like the count matrix) and analysis (like PCA, or clustering results) for a single-cell dataset. For a technical discussion of the `Seurat` object structure, check out the [GitHub Wiki](https://github.com/satijalab/seurat/wiki). For example, the count matrix is stored in `pbmc@assays$RNA@counts`.
 
 
 ```{r init}
@@ -84,7 +84,7 @@ dense.size / sparse.size
 </details>
 
 
-#### Discussion on the Seurat Object in R {.challenge}
+#### Discussion: The Seurat Object in R {.challenge}
 Lets take a look at the seurat object we have just created in R, `pbmc`
 
 To accomodate the complexity of data arising from a single cell RNA seq experiment, the seurat object keeps this as a container of multiple data tables that are linked.
@@ -111,7 +111,8 @@ Seurat, there are three types.
 <summary>**Slots**</summary>
 
 Slots are parts within a class that contain specific data. These can be lists, 
-data tables and vectors and can be accessed with conventional R methods 
+data tables and vectors and can be accessed with conventional R methods.
+ 
 </details>
 
 
@@ -123,38 +124,27 @@ there maybe occasion to acess these separately to `hack` them however, this is a
 analysis method. 
 
 The ways to access the slots can be through methods for the class (functions) or with 
-standard R accessor nomenclature. 
+standard R accessor nomenclature.
 </details>
 
-Lets take a look at some things within the seurat object. We can do this with the `str` function in R.
+**Examples of accessing a Seurat object**
 
-What is in the `meta.data` slot within your seurat object currently? What type of data is contained here?
+The `assays` slot in `pbmc` can be accessed with `pbmc@assays`.
 
-Where is our count data within the seurat object? 
+The `RNA` assay can be accessed from this with `pbmc@assays$RNA`. 
 
+We often want to access assays, so Seurat nicely gives us a shortcut `pbmc$RNA`. You may sometimes see an alternative notation `pbmc[["RNA"]]`.
 
-<details>
-<summary>**Example code for challenge and outputs**</summary>
+In general, slots that are always in an object are accessed with `@` and things that may be different in different data sets are accessed with `$`.
 
-```{r}
-## To look at our seurat object
-str(pbmc)
+**Have a go**
 
-## To access the meta.data slot
+Use `str` to look at the structure of the Seurat object `pbmc`.
 
-head(pbmc@meta.data, n = 6)
+What is in the `meta.data` slot within your Seurat object currently? What type of data is contained here?
 
-## meta.data contains cell metadata identified by cell barcode, currently there is nFeatures and nCounts
+Where is our count data within the Seurat object? 
 
-## the actual count data can be found by which is what we had in `pbmc.data` lots of accessors here!
-
-head(pbmc@assays$RNA@counts, n = 6)
-
-
-## this is the data object in pbmc.data but is now stored within the seurat object
-pbmc@assays$RNA@counts[c("CD3D","TCL1A","MS4A1"), 1:30]
-```
-</details>
 
 
 # Standard pre-processing workflow
@@ -175,23 +165,18 @@ Seurat allows you to easily explore QC metrics and filter cells based on any use
     + We use the set of all genes starting with `MT-` as a set of mitochondrial genes
 
 ```{r mito, fig.height=7, fig.width=13}
-# The [[ operator can add columns to object metadata. This is a great place to stash QC stats
-pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
+# The $ operator can add columns to object metadata. This is a great place to stash QC stats
+pbmc$percent.mt <- PercentageFeatureSet(pbmc, pattern = "^MT-")
 ```
 
 \  
 
-#### The meta.data slot in the seurat object {.challenge}
-<details>
-  <summary>**Where are QC metrics stored in Seurat?**</summary>
+#### Challenge: The meta.data slot in the Seurat object {.challenge}
+
+Where are QC metrics stored in Seurat?
 
 * The number of unique genes and total molecules are automatically calculated during `CreateSeuratObject()`
     + You can find them stored in the object meta data
-```{r qc, fig.height=7, fig.width=13}
-# Show QC metrics for the first 5 cells
-head(pbmc@meta.data, 5)
-```
-</details>
 
 What do you noticed has changed within the `meta.data` table now that we have calculated mitochondrial gene proportion?
 
@@ -235,41 +220,18 @@ What can you see? Discuss in break out?
 <summary>**Code for challenge**</summary>
 Create new meta.data columns to contain percentages of the large and small ribosomal genes.
 
-Then plot a scatter plot with this new data.
-
-```{r}
-pbmc[["percent.riboL"]] <- PercentageFeatureSet(pbmc, pattern = "^RPL")
-pbmc[["percent.riboS"]] <- PercentageFeatureSet(pbmc, pattern = "^RPS")
-
-plot1 <- FeatureScatter(pbmc, feature1 = "percent.riboS", feature2 = "percent.riboL")
-plot1
-```
-The large and small ribosomal subunit genes are correlated within cell. 
+Then plot a scatter plot with this new data. You should find that the large and small ribosomal subunit genes are correlated within cell. 
 
 What about with mitochondria and gene, feature counts?
 
-```{r}
-plot2 <- FeatureScatter(pbmc, feature1 = "percent.riboL", feature2 = "percent.mt")
-plot2
-```
-
-There are cells with low ribosome and low mitochondrial gene percentages, and some outliers too (low ribo, high mt)
-
 These are the cells you may want to exclude.
 </details>
-
 
 <details>
 <summary>**Advanced Challenge**</summary>
 Highlight cells with very low percentage of ribosomal genes, create a new column in the meta.data table and 
 with `FeatureScatter` make a plot of the RNA count and mitochondrial percentage with the cells with very low
 ribosomal gene perentage.
-
-```{r}
-pbmc[["lowRiboL"]] <- pbmc[["percent.riboL"]] <= 5
-plot1 <- FeatureScatter(pbmc, feature1 = "nCount_RNA", feature2 = "percent.mt", group.by = "lowRiboL")
-plot1
-```
 </details>
 
 ##
@@ -292,7 +254,7 @@ plot5 + plot6
 
 # Normalizing the data
 
-After removing unwanted cells from the dataset, the next step is to normalize the data. By default, we employ a global-scaling normalization method "LogNormalize" that normalizes the feature expression measurements for each cell by the total expression, multiplies this by a scale factor (10,000 by default), and log-transforms the result. Normalized values are stored in `pbmc[["RNA"]]@data`.
+After removing unwanted cells from the dataset, the next step is to normalize the data. By default, we employ a global-scaling normalization method "LogNormalize" that normalizes the feature expression measurements for each cell by the total expression, multiplies this by a scale factor (10,000 by default), and log-transforms the result. Normalized values are stored in `pbmc$RNA@data`.
 
 ```{r normalize}
 pbmc <- NormalizeData(pbmc, normalization.method = "LogNormalize", scale.factor = 1e4)
@@ -325,16 +287,7 @@ plot1 + plot2
 
 What if we wanted to look at genes we are specifically interested in? We can create a character vector of gene names and apply that to this plot.
 
-Lets look at some genes that could be of interest such as IL8, IDH2 and CXCL3
-
-```{r var_features2, fig.height=5, fig.width=11}
-# create a vector of genes of interest
-goi <- c("IL8", "IDH2", "CXCL3")
-
-# plot variable features with and without labels
-plot3 <- LabelPoints(plot = plot1, points = goi, repel = TRUE)
-plot2 + plot3
-```
+Make a plot with labels for the genes IL8, IDH2 and CXCL3.
 
 
 # Scaling the data
@@ -344,7 +297,7 @@ Next, we apply a linear transformation ('scaling') that is a standard pre-proces
 * Shifts the expression of each gene, so that the mean expression across cells is 0
 * Scales the expression of each gene, so that the variance across cells is 1
     + This step gives equal weight in downstream analyses, so that highly-expressed genes do not dominate
-* The results of this are stored in `pbmc[["RNA"]]@scale.data`
+* The results of this are stored in `pbmc$RNA@scale.data`
 
 ```{r regress, fig.height=7, fig.width=11, results='hide'}
 all.genes <- rownames(pbmc)
@@ -385,7 +338,7 @@ Seurat provides several useful ways of visualizing both cells and features that 
 
 ```{r pca_viz, message=TRUE}
 # Examine and visualize PCA results a few different ways
-print(pbmc[['pca']], dims = 1:5, nfeatures = 5)
+print(pbmc$pca, dims = 1:5, nfeatures = 5)
 VizDimLoadings(pbmc, dims = 1:2, reduction = 'pca')
 DimPlot(pbmc, reduction = 'pca')
 ```
@@ -486,7 +439,7 @@ saveRDS(pbmc, file = "pbmc_tutorial.rds")
 ```
 
 
-#### Challenge - try different cluster settings {.challenge}
+#### Challenge: Try different cluster settings {.challenge}
 
 Run `FindNeighbours` and `FindClusters` again, with a different number of dimensions or with a different resolution. Examine the resulting clusters using `DimPlot`.
 
@@ -532,10 +485,9 @@ These are ridgeplots, cell scatter plots and dotplots. Replace `FeaturePlot` wit
 ```{r ridgeplots, fig.height=10, fig.width=15}
 RidgePlot(pbmc, features = c("MS4A1", "GNLY", "CD3E", "CD14", "FCER1A", "FCGR3A", "LYZ", "PPBP", "CD8A"))
 ```
-For CellScatter plots, will need the cell id of the cells you want to look at. You could access
-this using the `[[` notation.
+For CellScatter plots, will need the cell id of the cells you want to look at. You can get this from the cell metadata (`pbmc@meta.data`).
 ```{r}
-head( pbmc[[]] )
+head( pbmc@meta.data )
 CellScatter(pbmc, cell1 = "AAACATACAACCAC-1", cell2 = "AAACATTGAGCTAC-1")
 ```
 
@@ -598,7 +550,7 @@ saveRDS(pbmc, file = "pbmc3k_final.rds")
 write.csv(x = t(as.data.frame(all_times)), file = "pbmc3k_tutorial_times.csv")
 ```
   
- # SingleR
+# SingleR
 
 ```{r}
 #install.packages("BiocManager")
@@ -644,7 +596,7 @@ Keep any types that have more than 10 cells to the label, and put those labels b
 
 ```{r}
 lbls.keep <- table(pred.cnts$first.labels)>10
-pbmc[["SingleR.labels"]] <- ifelse(lbls.keep[pred.cnts$first.labels], pred.cnts$first.labels, 'Other')
+pbmc$SingleR.labels <- ifelse(lbls.keep[pred.cnts$first.labels], pred.cnts$first.labels, 'Other')
 DimPlot(pbmc, reduction='umap', group.by='SingleR.labels')
 ```
 
@@ -775,10 +727,10 @@ get_earliest_principal_node <- function(cds,  cell_type="Naive CD4 T"){
   cell_ids <- which(colData(cds)[, "ident"] == cell_type)
   
   closest_vertex <-
-  cds@principal_graph_aux[["UMAP"]]$pr_graph_cell_proj_closest_vertex
+  cds@principal_graph_aux$UMAP$pr_graph_cell_proj_closest_vertex
   closest_vertex <- as.matrix(closest_vertex[colnames(cds), ])
   root_pr_nodes <-
-  igraph::V(principal_graph(cds)[["UMAP"]])$name[as.numeric(names
+  igraph::V(principal_graph(cds)$UMAP)$name[as.numeric(names
   (which.max(table(closest_vertex[cell_ids,]))))]
   
   root_pr_nodes

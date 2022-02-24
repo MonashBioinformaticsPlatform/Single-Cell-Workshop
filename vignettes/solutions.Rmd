@@ -1,0 +1,113 @@
+---
+title: "Solutions to challenges"
+output:
+  html_document:
+    theme: united
+    df_print: kable
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    css: style.css
+date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
+editor_options: 
+  chunk_output_type: console
+---
+
+## Discussion: The Seurat Object in R
+
+```{r eval=FALSE}
+## To look at our seurat object
+str(pbmc)
+
+## To access the meta.data slot
+pbmc@meta.data
+
+## meta.data contains cell metadata identified by cell barcode, currently there is nFeatures and nCounts
+
+## the actual count data can be found by which is what we had in `pbmc.data` lots of accessors here!
+
+pbmc@assays$RNA@counts
+# or
+pbmc$RNA@counts
+# or
+pbmc[["RNA"]]@counts
+
+## this is the data object in pbmc.data but is now stored within the seurat object
+pbmc@assays$RNA@counts[c("CD3D","TCL1A","MS4A1"), 1:30]
+```
+
+
+## Challenge: The meta.data slot in the Seurat object
+
+```{r eval=FALSE}
+# Show QC metrics for the first 5 cells
+head(pbmc@meta.data, 5)
+```
+
+## Challenge: Ribosomal gene expression as a QC metric
+
+```{r eval=FALSE}
+pbmc$percent.riboL <- PercentageFeatureSet(pbmc, pattern = "^RPL")
+pbmc$percent.riboS <- PercentageFeatureSet(pbmc, pattern = "^RPS")
+
+plot1 <- FeatureScatter(pbmc, feature1 = "percent.riboS", feature2 = "percent.riboL")
+plot1
+```
+
+The large and small ribosomal subunit genes are correlated within cell. 
+
+What about with mitochondria and gene, feature counts?
+
+```{r eval=FALSE}
+plot2 <- FeatureScatter(pbmc, feature1 = "percent.riboL", feature2 = "percent.mt")
+plot2
+```
+
+There are cells with low ribosome and low mitochondrial gene percentages, and some outliers too (low ribo, high mt).
+
+These are the cells you may want to exclude.
+
+To highlight cells with very low percentage of ribosomal genes, create a new column in the meta.data table and 
+with `FeatureScatter` make a plot of the RNA count and mitochondrial percentage with the cells with very low
+ribosomal gene perentage.
+
+```{r eval=FALSE}
+pbmc$lowRiboL <- pbmc$percent.riboL <= 5
+plot1 <- FeatureScatter(pbmc, feature1 = "nCount_RNA", feature2 = "percent.mt", group.by = "lowRiboL")
+plot1
+```
+
+## Challenge: Labelling Genes of Interest
+
+```{r eval=FALSE}
+# earlier we created a variable genes plot
+plot1 <- VariableFeaturePlot(pbmc)
+
+# create a vector of genes of interest
+goi <- c("IL8", "IDH2", "CXCL3")
+
+# now we add the labels we want
+plot3 <- LabelPoints(plot = plot1, points = goi, repel = TRUE)
+
+plot3
+```
+
+## Challenge: Try different cluster settings
+
+Setting the resolution to 0.05 produces less clusters:
+
+```{r eval=FALSE}
+pbmc2 <- FindClusters(pbmc, resolution = 0.05)
+DimPlot(pbmc2, reduction = 'pca', dims=c(1,2))
+DimPlot(pbmc2, reduction = 'umap')
+```
+
+Using only the first two principal components, the clusters look muddled in the UMAP:
+
+```{r eval=FALSE}
+pbmc3 <- FindNeighbors(pbmc, dims = 1:2)
+pbmc3 <- FindClusters(pbmc3, resolution = 0.5)
+DimPlot(pbmc3, reduction = 'pca', dims=c(1,2))
+DimPlot(pbmc3, reduction = 'umap')
+```
+
