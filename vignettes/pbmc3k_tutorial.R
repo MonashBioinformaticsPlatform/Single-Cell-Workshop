@@ -52,11 +52,9 @@ dense.size / sparse.size
 
 # **Class**
 
-# These are essentially data containers in R as a class, and can accessed as a variable in the
-# R environment.
+# These are essentially data containers in R as a class, and can accessed as a variable in the R environment.
 
-# Classes are pre-defined and can contain multiple data tables and metadata. For
-# Seurat, there are three types.
+# Classes are pre-defined and can contain multiple data tables and metadata. For Seurat, there are three types.
 
 # * Seurat - the main data class, contains all the data.
 # * Assay - found within the Seurat object. Depending on the experiment a cell could have data on RNA, ATAC etc measured
@@ -64,17 +62,13 @@ dense.size / sparse.size
 
 # **Slots**
 
-# Slots are parts within a class that contain specific data. These can be lists,
-# data tables and vectors and can be accessed with conventional R methods.
+# Slots are parts within a class that contain specific data. These can be lists, data tables and vectors and can be accessed with conventional R methods.
 
 # **Data Access**
 
-# Many of the functions in Seurat operate on the data class and slots within them seamlessly,
-# there maybe occasion to acess these separately to hack them however, this is an advanced
-# analysis method.
+# Many of the functions in Seurat operate on the data class and slots within them seamlessly. There maybe occasion to access these separately to hack them, however this is an advanced analysis method.
 
-# The ways to access the slots can be through methods for the class (functions) or with
-# standard R accessor nomenclature.
+# The ways to access the slots can be through methods for the class (functions) or with standard R accessor nomenclature.
 
 # **Examples of accessing a Seurat object**
 
@@ -124,12 +118,11 @@ pbmc$percent.mt <- PercentageFeatureSet(pbmc, pattern = "^MT-")
 # * The number of unique genes and total molecules are automatically calculated during CreateSeuratObject()
 #     + You can find them stored in the object meta data
 
-# What do you noticed has changed within the meta.data table now that we have calculated mitochondrial gene proportion?
+# What do you notice has changed within the meta.data table now that we have calculated mitochondrial gene proportion?
 
 # Could we add more data into the meta.data table?
 
-
-## --------
+# ###
 
 # In the example below, we visualize QC metrics, and use these to filter cells.
 
@@ -156,11 +149,9 @@ plot3
 
 # Ribosomal gene expression could be another factor to look into your cells within your experiment.
 
-# Create more columns of metadata using PercentageFeatureSet function, this time search for ribosomal genes. We can
-# calculate the percentage for the large subunit (RPL) and small subunit (RPL) ribosomal genes.
+# Create more columns of metadata using PercentageFeatureSet function, this time search for ribosomal genes. We can  calculate the percentage for the large subunit (RPL) and small subunit (RPS) ribosomal genes.
 
-# Use FeatureScatter to plot combinations of metrics available in metadata. How is the mitochondrial gene percentage related to the ribosomal gene percentage?
-# What can you see? Discuss in break out?
+# Use FeatureScatter to plot combinations of metrics available in metadata. How is the mitochondrial gene percentage related to the ribosomal gene percentage? What can you see? Discuss in break out.
 
 # **Code for challenge**
 # Create new meta.data columns to contain percentages of the large and small ribosomal genes.
@@ -172,15 +163,11 @@ plot3
 # These are the cells you may want to exclude.
 
 # **Advanced Challenge**
-# Highlight cells with very low percentage of ribosomal genes, create a new column in the meta.data table and
-# with FeatureScatter make a plot of the RNA count and mitochondrial percentage with the cells with very low
-# ribosomal gene perentage.
+# Highlight cells with very low percentage of ribosomal genes, create a new column in the meta.data table and with FeatureScatter make a plot of the RNA count and mitochondrial percentage with the cells with very low ribosomal gene perentage.
 
+# ###
 
-## --------
-
-# Okay we are happy with our thresholds for mitochondrial percentage in cells, lets apply them and subset our data. This will remove
-# the cells we think are of poor quality.
+# Okay we are happy with our thresholds for mitochondrial percentage in cells, lets apply them and subset our data. This will remove the cells we think are of poor quality.
 
 pbmc <- subset(pbmc, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 5)
 
@@ -368,7 +355,7 @@ head(cluster5.markers, n = 5)
 pbmc.markers <- FindAllMarkers(pbmc, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
 pbmc.markers %>% group_by(cluster) %>% slice_max(n = 2, order_by = avg_log2FC)
 
-# Seurat has several tests for differential expression which can be set with the test.use parameter (see our [DE vignette](de_vignette.html) for details). For example, the ROC test returns the 'classification power' for any individual marker (ranging from 0 - random, to 1 - perfect).
+# Seurat has several tests for differential expression which can be set with the test.use parameter (see our [DE vignette](de_vignette.html) for details). For example, the ROC test returns the 'classification power' abs(AUC-0.5)*2 for any individual marker, ranging from 0 = random to 1 = perfect.
 
 cluster0.markers <- FindMarkers(pbmc, ident.1 = 0, logfc.threshold = 0.25, test.use = "roc", only.pos = TRUE)
 
@@ -397,7 +384,7 @@ DotPlot(pbmc, features = c("MS4A1", "GNLY", "CD3E", "CD14", "FCER1A", "FCGR3A", 
 
 # DoHeatmap() generates an expression heatmap for given cells and features. In this case, we are plotting the top 20 markers (or all markers if less than 20) for each cluster.
 
-pbmc.markers %>% group_by(cluster) %>% top_n(n = 10, wt = avg_log2FC) -> top10
+top10 <- pbmc.markers %>% group_by(cluster) %>% top_n(n = 10, wt = avg_log2FC)
 DoHeatmap(pbmc, features = top10$gene) + NoLegend()
 
 

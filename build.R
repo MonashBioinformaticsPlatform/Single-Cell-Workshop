@@ -34,7 +34,7 @@ build_r <- function() {
             clean_line <- str_trim(clean_line, "right")
             if (clean_line=="" || clean_line=="\\" || clean_line=="***") {
                 need_blank <- TRUE
-            } else if (str_detect(clean_line,"^#")) {
+            } else if (str_detect(clean_line,"^#+\\s+\\w+")) {
                 show("")
                 show("")
                 show(clean_line, " --------")
