@@ -29,10 +29,12 @@ N_INSTANCES=20
 AZ=monash-02
 PREFIX=sswrkshp
 
+# r3.medium	 = 4 cores, 16Gb RAM
+
 openstack server create \
   --image ${IMAGE} \
   --key-name mbp_hosts \
-  --flavor r3.small \
+  --flavor r3.medium \
   --availability-zone ${AZ} \
   --security-group default \
   --security-group http-https-traffic \
