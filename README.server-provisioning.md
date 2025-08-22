@@ -32,7 +32,7 @@ PREFIX=sswrkshp
 openstack server create \
   --image ${IMAGE} \
   --key-name mbp_hosts \
-  --flavor m3.medium \
+  --flavor r3.small \
   --availability-zone ${AZ} \
   --security-group default \
   --security-group http-https-traffic \
