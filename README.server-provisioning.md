@@ -24,7 +24,7 @@ source Monash-biotraining-openrc.sh
 
 Create 20 instances:
 ```bash
-IMAGE=rstudio-seurat_20220301
+IMAGE=singlecell-workshop-r4.4.0-bioc-3.19_20241107-3
 N_INSTANCES=20
 AZ=monash-02
 PREFIX=sswrkshp
@@ -32,7 +32,7 @@ PREFIX=sswrkshp
 openstack server create \
   --image ${IMAGE} \
   --key-name mbp_hosts \
-  --flavor m3.small \
+  --flavor m3.medium \
   --availability-zone ${AZ} \
   --security-group default \
   --security-group http-https-traffic \
